@@ -16,7 +16,7 @@ import { SheetTrigger, Sheet, SheetContent } from "./ui/sheet";
 
 const routes = [
   {
-    href: "",
+    href: "/",
     label: "Home",
     icon: HomeIcon
   },
