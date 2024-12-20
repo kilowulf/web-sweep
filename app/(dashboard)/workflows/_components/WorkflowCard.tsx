@@ -30,7 +30,7 @@ const statusColors = {
   [WorkflowStatus.PUBLISHED]: "bg-green-500"
 };
 
-// timestmp: 1:44:00
+// timestamp: 1:44:00
 export default function WorkflowCard({ workflow }: { workflow: WorkFlow }) {
   const isDraft = workflow.status === WorkflowStatus.DRAFT;
   return (
