@@ -20,6 +20,11 @@ const nodeTypes = {
   WebSweepNode: NodeComponent
 };
 
+const snapGrid: [number, number] = [50, 50];
+const fitViewOptions = {
+  padding: 1
+};
+
 export default function FlowEditor({ workflow }: { workflow: WorkFlow }) {
   const [nodes, setNodes, onNodesChange] = useNodesState([
     CreateFlowNode(TaskType.LAUNCH_BROWSER)
@@ -33,8 +38,12 @@ export default function FlowEditor({ workflow }: { workflow: WorkFlow }) {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         nodeTypes={nodeTypes}
+        snapToGrid
+        snapGrid={snapGrid}
+        fitViewOptions={fitViewOptions}
+        fitView
       >
-        <Controls position="top-left" />
+        <Controls position="top-left" fitViewOptions={fitViewOptions} />
         <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
       </ReactFlow>
     </main>
