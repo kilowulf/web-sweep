@@ -13,6 +13,7 @@ export default function SaveBtn({ workflowId }: { workflowId: string }) {
   const saveMutation = useMutation({
     mutationFn: UpdateWorkflow,
     onSuccess: () => {
+      console.log("@FLOW", toObject());
       toast.success("Workflow saved", { id: "save-workflow" });
     },
     onError: () => {
