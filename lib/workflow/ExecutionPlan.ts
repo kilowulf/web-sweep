@@ -5,6 +5,7 @@ import {
 } from "@/types/workflow";
 import { Edge, getIncomers } from "@xyflow/react";
 import { TaskRegistry } from "@/lib/workflow/task/registry";
+import useFlowValidation from "@/components/hooks/useFlowValidation";
 
 export enum FlowToExecutionPlanValidationError {
   "NO_ENTRY_POINT",
@@ -24,6 +25,7 @@ export function FlowToExecutionPlan(
   nodes: AppNode[],
   edges: Edge[]
 ): FlowToExecutionPlanType {
+  
   const entryPoint = nodes.find(
     (node) => TaskRegistry[node.data.type].isEntryPoint
   );
@@ -36,8 +38,8 @@ export function FlowToExecutionPlan(
     };
   }
   const inputsWithErrors: AppNodeMissingInputs[] = [];
-
   const planned = new Set<string>();
+  
 
   const invalidInputs = getInvalidInputs(entryPoint, edges, planned);
   if (invalidInputs.length > 0) {
@@ -71,9 +73,9 @@ export function FlowToExecutionPlan(
         const incomers = getIncomers(currentNode, nodes, edges);
         if (incomers.every((incomer) => planned.has(incomer.id))) {
           // if all incoming incomers / edges are planned and there are still invalid inputs
-          // this means that this particular node has an invalid inpit
+          // this means that this particular node has an invalid input
           // which means the workflow is invalid
-          console.error("invalid inputs", currentNode, invalidInputs);
+          console.error("invalid inputs: executionPlan", currentNode, invalidInputs);
           inputsWithErrors.push({
             nodeId: currentNode.id,
             inputs: invalidInputs
@@ -129,9 +131,7 @@ function getInvalidInputs(node: AppNode, edges: Edge[], planned: Set<string>) {
     } else if (!input.required) {
       // if input is not required but has an ouptut linked
       // check to ensure output is planned
-      if (!inputLinkedToOutput) {
-        continue;
-      }
+      if (!inputLinkedToOutput) continue;      
       if (inputLinkedToOutput && planned.has(inputLinkedToOutput.source)) {
         continue;
       }

@@ -1,10 +1,11 @@
 "use client";
 
+import useFlowValidation from "@/components/hooks/useFlowValidation";
 import { cn } from "@/lib/utils";
 import { useReactFlow } from "@xyflow/react";
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 
-// timestamp: 2:09:32
+// timestamp: 5:05:08
 export default function NodeCard({
   children,
   nodeId,
@@ -15,6 +16,14 @@ export default function NodeCard({
   isSelected: boolean;
 }) {
   const { getNode, setCenter } = useReactFlow();
+  const { invalidInputs } = useFlowValidation();
+  const hasInvalidInputs =
+    invalidInputs?.some((node) => node.nodeId === nodeId);
+  console.log("hasInvalidInputs: nodeCard", invalidInputs);
+
+  useEffect(() => {
+    console.log("Updated Invalid Inputs: nodeCard", invalidInputs);
+  }, [invalidInputs]);
 
   // set node parameters
   const nodeSetParams = () => {
@@ -38,7 +47,8 @@ export default function NodeCard({
       onDoubleClick={() => nodeSetParams()}
       className={cn(
         "rounded-md cursor-pointer bg-background border-2 borer-separate w-[420px] text-xs gap-1 flex flex-col",
-        isSelected && "border-primary"
+        isSelected && "border-primary",
+        hasInvalidInputs && "border-destructive border-2"
       )}
     >
       {children}

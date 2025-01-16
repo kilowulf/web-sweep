@@ -8,5 +8,8 @@ export default function useFlowValidation() {
       "useFlowValidation must be used within a FlowValidationContext"
     );
   }
+
+  const { invalidInputs, setInvalidInputs, clearErrors } = context;
+  console.log("invalidInputs: useFlowValidation", invalidInputs);
   return context;
 }
