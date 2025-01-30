@@ -41,6 +41,8 @@ model WorkflowExecution {
   createdAt DateTime @default(now())
   startedAt DateTime? 
   completedAt DateTime?
+
+  creditsConsumed Int @default(0)
   
   phases ExecutionPhase[]
 
