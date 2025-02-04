@@ -12,12 +12,14 @@ export async function LaunchBrowserExecutor(
     const browser = await puppeteer.launch({
       headless: true
     });
+    environment.log.info("Browser started successfully");
     environment.setBrowser(browser);
     const page = await browser.newPage();
     await page.goto(websiteUrl);
     environment.setPage(page);
-  } catch (error) {
-    console.log(error);
+    environment.log.info(`Opened page at: ${websiteUrl}`);
+  } catch (error: any) {
+    environment.log.error(error.message);
     return false;
   }
 
