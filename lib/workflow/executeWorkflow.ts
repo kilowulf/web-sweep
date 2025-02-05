@@ -17,7 +17,7 @@ import { Edge } from "@xyflow/react";
 import { LogCollector } from "@/types/log";
 import { createLogCollector } from "@/lib/log";
 
-// timestamp: 6:41:54
+// timestamp: 8:33:47
 export async function ExecuteWorkflow(executionId: string) {
   const execution = await prisma.workflowExecution.findUnique({
     where: { id: executionId },
