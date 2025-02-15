@@ -168,7 +168,7 @@ async function executeWorkflowPhase(
 
   const creditsRequired = TaskRegistry[node.data.type].credits;
 
-  // TODO: decrement from user balance
+  // decrement from user balance
   let success = await decrementCredits(userId, creditsRequired, logCollector);
   const creditsConsumed = success ? creditsRequired : 0;
   if (success) {
@@ -177,7 +177,6 @@ async function executeWorkflowPhase(
   }
 
   // Execute phase simulation
-
   const outputs = environment.phases[node.id].outputs;
   await finalizePhase(
     phase.id,
