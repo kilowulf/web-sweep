@@ -17,6 +17,8 @@ model WorkFlow {
   description String?
 
   definition String
+  executionPlan String?
+  creditsCost Int @default(0)
   status String   // DRAFT || PUBLISHED
 
   lastRunAt DateTime?
