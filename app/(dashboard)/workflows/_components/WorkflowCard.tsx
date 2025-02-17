@@ -6,8 +6,12 @@ import { cn } from "@/lib/utils";
 import { WorkflowStatus } from "@/types/workflow";
 import { WorkFlow } from "@prisma/client";
 import {
+  CoinsIcon,
+  CornerLeftDown,
+  CornerRightDown,
   FileTextIcon,
   MoreVerticalIcon,
+  MoveRightIcon,
   PlayIcon,
   ShuffleIcon,
   TrashIcon
@@ -25,6 +29,8 @@ import {
 import TooltipWrapper from "@/components/TooltipWrapper";
 import DeleteWorkflowDialog from "@/app/(dashboard)/workflows/_components/DeleteWorkflowDialog";
 import RunBtn from "@/app/(dashboard)/workflows/_components/RunBtn";
+import SchedulerDialog from "@/app/(dashboard)/workflows/_components/SchedulerDialog";
+import { Badge } from "@/components/ui/badge";
 
 const statusColors = {
   [WorkflowStatus.DRAFT]: "bg-yellow-500",
@@ -64,6 +70,12 @@ export default function WorkflowCard({ workflow }: { workflow: WorkFlow }) {
                 </span>
               )}
             </h3>
+            <SchedulerSection
+              isDraft={isDraft}
+              creditsCost={workflow.creditsCost}
+              workflowId={workflow.id}
+              cron={workflow.cron}
+            />
           </div>
         </div>
         <div className="flex items-center space-x-2">
@@ -132,5 +144,36 @@ function WorkflowActions({
         </DropdownMenuContent>
       </DropdownMenu>
     </>
+  );
+}
+
+function SchedulerSection({
+  isDraft,
+  creditsCost,
+  workflowId,
+  cron
+}: {
+  isDraft: boolean;
+  creditsCost: number;
+  workflowId: string;
+  cron: string | null;
+}) {
+  if (isDraft) return null;
+  return (
+    <div className="flex items-center gap-2">
+      <CornerRightDown className="h-4 w-4 text-muted-foreground" />
+      <SchedulerDialog workflowId={workflowId} cron={cron} />
+      <MoveRightIcon className="h-4 w-4 text-muted-foreground" />
+      <TooltipWrapper content={"Credit consumption for full run"}>
+        <div className="flex items-center gap-3">
+          <Badge
+            variant={"outline"}
+            className="space-x-2 text-muted-foreground rounded-sm"
+          />
+          <CoinsIcon className="h-4 w-4" />
+          <span className="text-sm">{creditsCost}</span>
+        </div>
+      </TooltipWrapper>
+    </div>
   );
 }
