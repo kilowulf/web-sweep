@@ -35,7 +35,7 @@ export default function StringParam({
         disabled={disabled}
         className="text-xs text-muted-foreground"
         value={internalValue}
-        placeholder="Enter url here"
+        placeholder="Enter value here"
         onChange={(e: any) => setInternalValue(e.target.value)}
         onBlur={(e: any) => updateNodeParamValue(e.target.value)}
       />
