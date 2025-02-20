@@ -44,7 +44,7 @@ import { LogLevel } from "@/types/log";
 import PhaseStatusBadge from "@/app/workflow/runs/[workflowId]/[executionId]/_components/PhaseStatusBadge";
 import ReactCountUpWrapper from "@/components/ReactCountUpWrapper";
 
-// timestamp: 8:22:39
+// timestamp: 8:22:39   div.quote:nth-child(1) > span:nth-child(1)
 type ExecutionData = Awaited<ReturnType<typeof GetWorkflowExecutionWithPhases>>;
 
 export default function ExecutionViewer({
@@ -62,7 +62,7 @@ export default function ExecutionViewer({
   });
 
   const phaseDetails = useQuery({
-    queryKey: ["phaseDetails", selectedPhase],
+    queryKey: ["phaseDetails", selectedPhase, query.data?.status],
     enabled: selectedPhase !== null,
     queryFn: () => GetWorkflowPhaseDetails(selectedPhase!)
   });
