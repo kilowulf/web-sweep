@@ -83,8 +83,4 @@ export async function ExtractDataWithAIExecutor(
     environment.log.error(error.message);
     return false;
   }
-  // openai: project: websweep,
-  // api secret key:
-  //  name: websweep_api,
-  //  SECRET_KEY: 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
 }
