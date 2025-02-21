@@ -6,11 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Layers2Icon, Loader2, ShieldEllipsis } from "lucide-react";
 import CustomDialogHeader from "@/components/CustomDialogHeader";
 import { useForm } from "react-hook-form";
-import {
-  createWorkflowSchema,
-  createWorkflowSchemaType
-} from "@/schema/workflow";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
@@ -48,6 +43,8 @@ export default function CreateCredentialDialog({
       toast.success("Credential created successfully", {
         id: "create-credential"
       });
+      form.reset();
+      setOpen(false);
     },
     onError: () => {
       toast.error("Failed to create credential", { id: "create-credential" });
@@ -63,13 +60,7 @@ export default function CreateCredentialDialog({
   );
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(open) => {
-        form.reset();
-        setOpen(open);
-      }}
-    >
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>{triggerText ?? "Create"}</Button>
       </DialogTrigger>
