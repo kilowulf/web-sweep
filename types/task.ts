@@ -10,7 +10,7 @@ export enum TaskType {
   READ_PROPERTY_FROM_JSON = "READ_PROPERTY_FROM_JSON"
 }
 
-// timestamp: 12:41:39
+//  timestamp: 12:41:39
 
 export enum TaskParamType {
   STRING = "STRING",
