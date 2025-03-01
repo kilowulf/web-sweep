@@ -11,6 +11,8 @@ import { DeliverViaWebhookExecutor } from "@/lib/workflow/executor/DeliverViaWeb
 import { ExtractDataWithAIExecutor } from "@/lib/workflow/executor/ExtractDataWithAIExecutor";
 import { ReadPropertyFromJsonExecutor } from "@/lib/workflow/executor/ReadPropertyFromJsonExecutor";
 import { AddPropertyToJsonExecutor } from "@/lib/workflow/executor/AddPropertyToJsonExecutor";
+import { NavigateUrlExecutor } from "@/lib/workflow/executor/NavigateUrlExecutor";
+import { ScrollToElementExecutor } from "@/lib/workflow/executor/ScrollToElementExecutor";
 
 type ExecutorFn<T extends WorkflowTask> = (
   environment: ExecutionEnvironment<T>
@@ -29,5 +31,7 @@ export const ExecutorRegistry: RegistryType = {
   DELIVER_VIA_WEBHOOK: DeliverViaWebhookExecutor,
   EXTRACT_DATA_WITH_AI: ExtractDataWithAIExecutor,
   READ_PROPERTY_FROM_JSON: ReadPropertyFromJsonExecutor,
-  ADD_PROPERTY_TO_JSON: AddPropertyToJsonExecutor
+  ADD_PROPERTY_TO_JSON: AddPropertyToJsonExecutor,
+  NAVIGATE_URL: NavigateUrlExecutor,
+  SCROLL_TO_ELEMENT: ScrollToElementExecutor
 };
