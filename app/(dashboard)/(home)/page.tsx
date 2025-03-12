@@ -7,6 +7,7 @@ import { GetStatsCardsValues } from "@/actions/analytics/getStatsCardsValues";
 import { CirclePlayIcon, CoinsIcon, WaypointsIcon } from "lucide-react";
 import StatsCard from "@/app/(dashboard)/(home)/_components/StatsCard";
 import { GetWorkflowExecutionStats } from "@/actions/analytics/getWorkflowExecutionStats";
+import ExecutionStatusChart from "@/app/(dashboard)/(home)/_components/ExecutionStatusChart";
 
 // 13:33:29 timestamp
 export default function HomePage({
@@ -89,5 +90,5 @@ async function StatsExecutionStatus({
   selectedPeriod: Period;
 }) {
   const data = await GetWorkflowExecutionStats(selectedPeriod);
-  return <pre>{JSON.stringify(data, null, 4)}</pre>;
+  return <ExecutionStatusChart data={data} />;
 }
