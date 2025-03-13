@@ -23,7 +23,7 @@ import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 type ChartData = Awaited<ReturnType<typeof GetWorkflowExecutionStats>>;
 
 // timestamp: 13:52:18
-export default function ExecutionStatusChart({ data }: { data: ChartData }) {
+export default function CreditUsageChart({ data }: { data: ChartData }) {
   const chartConfig = {
     success: {
       label: "Success",
