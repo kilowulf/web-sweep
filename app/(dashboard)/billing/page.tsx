@@ -13,6 +13,7 @@ export default function BillingPage() {
       <Suspense fallback={<Skeleton className="h-[166px] w-full" />} />
       <BalanceCard />
       <CreditsPurchase />
+      <Suspense>{/**timestamp: 14:52:26 */}</Suspense>
     </div>
   );
 }
