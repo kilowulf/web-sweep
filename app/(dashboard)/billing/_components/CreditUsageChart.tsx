@@ -1,3 +1,32 @@
+/**
+ * CreditUsageChart Component
+ *
+ * Overview:
+ * This component displays a bar chart representing credit usage data over a period.
+ * It visualizes two types of credit usage: "Successful Phase Credit Usage" and "Failed Phase Credit Usage".
+ * The chart is built using a combination of custom UI components (Card, ChartContainer, etc.)
+ * and the Recharts library for rendering the bar chart.
+ *
+ * Important Functions and Variables:
+ * - GetCreditUsageInPeriod: An action that fetches the credit usage data; its return type is used for type safety.
+ * - ChartData: A TypeScript type alias derived from the awaited return value of GetCreditUsageInPeriod.
+ * - chartConfig: A configuration object that holds labels and colors for the "success" and "failed" data series.
+ * - Card, CardHeader, CardContent, etc.: UI components for structured layout.
+ * - BarChart, Bar, CartesianGrid, XAxis: Recharts components to build the bar chart visualization.
+ * - ChartLegend and ChartTooltip: Custom components to display a legend and tooltip for the chart.
+ *
+ * How It Works:
+ * - The component receives three props: `data` (the chart data), `title`, and `description`.
+ * - It defines a chartConfig object that assigns a label and color to each data series (success and failed).
+ * - The component renders a Card containing a header (with title and description) and a content area.
+ * - Within the content, a ChartContainer wraps the Recharts BarChart.
+ * - The BarChart is configured with grid lines, formatted X-axis labels (displaying dates in "MMM DD" format),
+ *   a legend, and a tooltip.
+ * - Two Bar elements are stacked to represent the "failed" and "success" credit usage metrics.
+ *
+ * 
+ */
+
 "use client";
 
 import { GetWorkflowExecutionStats } from "@/actions/analytics/getWorkflowExecutionStats";
@@ -23,7 +52,6 @@ import { GetCreditUsageInPeriod } from "@/actions/analytics/getCreditUsageInPeri
 
 type ChartData = Awaited<ReturnType<typeof GetCreditUsageInPeriod>>;
 
-// timestamp: 13:52:18
 export default function CreditUsageChart({
   data,
   title,

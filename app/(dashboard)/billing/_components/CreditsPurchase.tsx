@@ -1,3 +1,27 @@
+/**
+ * CreditsPurchase Component
+ *
+ * Overview:
+ * This component provides a user interface for purchasing credits.
+ * It displays a list of available credit packages using radio buttons,
+ * allowing users to select a package and then submit a purchase request.
+ *
+ * Key Functions and Variables:
+ * - CreditsPack: An array of available credit packages, including details such as id, name, label, and price.
+ * - PackId: An enumeration of credit pack IDs, with a default selection (PackId.MEDIUM).
+ * - useState: React hook used to manage the selected credit pack state.
+ * - useMutation: React Query hook used to handle the asynchronous purchase operation by invoking the PurchaseCredits function.
+ * - PurchaseCredits: Function responsible for processing the credit purchase.
+ *
+ * How It Works:
+ * - The component maintains the state of the currently selected credit pack.
+ * - It renders a radio group where each credit package is displayed with its name, label, and formatted price.
+ * - Selecting a package updates the state.
+ * - The "Purchase credits" button triggers a mutation to initiate the purchase process.
+ * - The button is disabled while the purchase request is pending.
+ *
+ *  */
+
 "use client";
 import React, { useState } from "react";
 import {
