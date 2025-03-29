@@ -22,7 +22,15 @@ import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 
 type ChartData = Awaited<ReturnType<typeof GetWorkflowExecutionStats>>;
 
-// timestamp: 13:52:18
+
+/**
+ * A functional component that renders a card displaying a chart showing daily workflow execution status.
+ *
+ * @param props - The component's props.
+ * @param props.data - The chart data, which includes the number of successful and failed workflow executions per day.
+ *
+ * @returns - A React element representing the CreditUsageChart component.
+ */
 export default function CreditUsageChart({ data }: { data: ChartData }) {
   const chartConfig = {
     success: {
@@ -96,3 +104,4 @@ export default function CreditUsageChart({ data }: { data: ChartData }) {
     </Card>
   );
 }
+

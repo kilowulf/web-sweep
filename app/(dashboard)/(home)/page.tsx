@@ -11,11 +11,18 @@ import ExecutionStatusChart from "@/app/(dashboard)/(home)/_components/Execution
 import { GetCreditUsageInPeriod } from "@/actions/analytics/getCreditUsageInPeriod";
 import CreditUsageChart from "@/app/(dashboard)/billing/_components/CreditUsageChart";
 
-// 13:33:29 timestamp
-export default function HomePage({
-  searchParams
-}: {
-  searchParams: { month?: string; year?: string };
+
+/**
+ * The HomePage component is the main content of the dashboard home page.
+ * It displays various statistics, charts, and selectors related to the application's analytics.
+ *
+ * @param searchParams - An object containing optional month and year query parameters.
+ * @param searchParams.month - The selected month for filtering analytics data.
+ * @param searchParams.year - The selected year for filtering analytics data.
+ *
+ * @returns A React component that renders the home page content.
+ */
+export default function HomePage({searchParams}: {searchParams: { month?: string; year?: string };
 }) {
   const currentDate = new Date();
   const { month, year } = searchParams;
@@ -46,6 +53,16 @@ export default function HomePage({
   );
 }
 
+
+/**
+ * PeriodSelectorWrapper is a React functional component that retrieves and displays a list of periods.
+ * It is a wrapper for the PeriodSelector component, fetching the periods data asynchronously.
+ *
+ * @param props - An object containing the following properties:
+ * @param props.selectedPeriod - The currently selected period.
+ *
+ * @returns A React component that renders the PeriodSelector with the fetched periods data.
+ */
 async function PeriodSelectorWrapper({
   selectedPeriod
 }: {
@@ -56,6 +73,16 @@ async function PeriodSelectorWrapper({
   return <PeriodSelector selectedPeriod={selectedPeriod} periods={periods} />;
 }
 
+
+/**
+ * The `StatsCards` function is responsible for fetching and displaying the statistics related to workflow execution, phase execution, and credits consumed.
+ * It fetches the data asynchronously using the `GetStatsCardsValues` function and renders the data using the `StatsCard` component.
+ *
+ * @param props - An object containing the following properties:
+ * @param props.selectedPeriod - The currently selected period for filtering analytics data.
+ *
+ * @returns A React component that renders a grid of `StatsCard` components with the fetched statistics data.
+ */
 async function StatsCards({ selectedPeriod }: { selectedPeriod: Period }) {
   const data = await GetStatsCardsValues(selectedPeriod);
   return (
@@ -79,6 +106,13 @@ async function StatsCards({ selectedPeriod }: { selectedPeriod: Period }) {
   );
 }
 
+
+/**
+ * The `StatsCardSkeleton` function is a React functional component that renders a skeleton UI for the `StatsCard` components.
+ * It is used to display a loading state while the actual statistics data is being fetched.
+ *
+ * @returns A React component that renders a grid of skeleton UI elements representing the `StatsCard` components.
+ */
 function StatsCardSkeleton() {
   return (
     <div className="grid gap-3 lg:gap-8 lg:grid-cols-3">
@@ -89,6 +123,16 @@ function StatsCardSkeleton() {
   );
 }
 
+
+/**
+ * The `StatsExecutionStatus` function is responsible for fetching and displaying the workflow execution statistics.
+ * It fetches the data asynchronously using the `GetWorkflowExecutionStats` function and renders the data using the `ExecutionStatusChart` component.
+ *
+ * @param props - An object containing the following properties:
+ * @param props.selectedPeriod - The currently selected period for filtering analytics data.
+ *
+ * @returns A React component that renders the `ExecutionStatusChart` with the fetched workflow execution statistics data.
+ */
 async function StatsExecutionStatus({
   selectedPeriod
 }: {
@@ -98,6 +142,19 @@ async function StatsExecutionStatus({
   return <ExecutionStatusChart data={data} />;
 }
 
+
+/**
+ * The `CreditsUsageInPeriod` function is responsible for fetching and displaying the daily credits usage within a specified period.
+ * It fetches the data asynchronously using the `GetCreditUsageInPeriod` function and renders the data using the `CreditUsageChart` component.
+ *
+ * @param props - An object containing the following properties:
+ * @param props.selectedPeriod - The currently selected period for filtering analytics data.
+ * @param props.selectedPeriod.month - The selected month for filtering analytics data.
+ * @param props.selectedPeriod.year - The selected year for filtering analytics data.
+ *
+ * @returns A React component that renders the `CreditUsageChart` with the fetched daily credits usage data.
+ * The `CreditUsageChart` component displays a line chart showing the daily credits spent within the selected time period.
+ */
 async function CreditsUsageInPeriod({
   selectedPeriod
 }: {
@@ -112,3 +169,4 @@ async function CreditsUsageInPeriod({
     />
   );
 }
+

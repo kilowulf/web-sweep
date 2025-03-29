@@ -7,7 +7,27 @@ import { PlayIcon } from "lucide-react";
 import React from "react";
 import { toast } from "sonner";
 
+/**
+ * Props for the RunBtn component.
+ *
+ * @typedef {Object} RunBtnProps
+ * @property {string} workflowId - The unique identifier for the workflow to be run.
+ */
+
+/**
+ * RunBtn Component.
+ *
+ * This component renders a button that, when clicked, initiates the execution of a workflow.
+ * It uses a mutation hook from react-query to trigger the RunWorkflow action, and provides
+ * real-time feedback via toast notifications on the action's status.
+ *
+ * @param {RunBtnProps} props - The properties for the component.
+ * @returns {JSX.Element} A button component that starts the workflow.
+ */
+
 export default function RunBtn({ workflowId }: { workflowId: string }) {
+  // Initialize a mutation for running the workflow.
+  // On success, display a success toast. On error, display an error toast.
   const mutation = useMutation({
     mutationFn: RunWorkflow,
     onSuccess: () => {

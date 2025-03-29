@@ -40,13 +40,25 @@ import { Button } from "@/components/ui/button";
 import { useMutation } from "@tanstack/react-query";
 import { PurchaseCredits } from "@/actions/billing/purchaseCredits";
 
+/**
+ * The `CreditsPurchase` component provides a user interface for purchasing credits.
+ * It displays a list of available credit packages using radio buttons, allowing users to select a package and then submit a purchase request.
+ *
+ * @param {void} - The function does not take any parameters.
+ * @returns {JSX.Element} - The JSX element representing the `CreditsPurchase` component.
+ */
 export default function CreditsPurchase() {
+  // State variable to store the selected credit pack ID
   const [selectedPack, setSelectedPack] = useState(PackId.MEDIUM);
+
+  // Mutation hook for handling the asynchronous purchase operation
   const mutation = useMutation({
     mutationFn: PurchaseCredits,
     onSuccess: () => {},
     onError: () => {}
   });
+
+  // JSX elements representing the component
   return (
     <Card>
       <CardHeader>
@@ -95,3 +107,4 @@ export default function CreditsPurchase() {
     </Card>
   );
 }
+

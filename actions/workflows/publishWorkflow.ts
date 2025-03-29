@@ -7,6 +7,18 @@ import { WorkflowStatus } from "@/types/workflow";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 
+/**
+ * This function is responsible for publishing a workflow by updating its status, definition, credits cost, and execution plan.
+ *
+ * @param {Object} params - The parameters required for publishing the workflow.
+ * @param {string} params.id - The unique identifier of the workflow to be published.
+ * @param {string} params.flowDefinition - The JSON representation of the workflow definition.
+ *
+ * @throws {Error} - Throws an error if the user is not authenticated, the workflow is not found, or the workflow is not in a draft status.
+ * @throws {Error} - Throws an error if the flow definition is not valid or if no execution plan is generated.
+ *
+ * @returns {Promise<void>} - Returns a promise that resolves when the workflow is successfully published.
+ */
 export async function PublishWorkflow({
   id,
   flowDefinition
@@ -61,3 +73,4 @@ export async function PublishWorkflow({
 
   revalidatePath(`/workflow/editor/${id}`);
 }
+

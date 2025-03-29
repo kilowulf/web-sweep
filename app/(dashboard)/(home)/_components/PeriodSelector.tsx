@@ -27,6 +27,15 @@ const MONTH_NAMES = [
   "December"
 ] as const;
 
+/**
+ * PeriodSelector is a React component that renders a dropdown menu for selecting a specific period.
+ * It uses the Next.js navigation library to update the URL query parameters when a new period is selected.
+ *
+ * @param periods - An array of Period objects representing the available periods to choose from.
+ * @param selectedPeriod - The currently selected Period object.
+ *
+ * @returns A React component that renders the PeriodSelector.
+ */
 export default function PeriodSelector({
   periods,
   selectedPeriod
@@ -60,3 +69,4 @@ export default function PeriodSelector({
     </Select>
   );
 }
+

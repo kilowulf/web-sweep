@@ -5,7 +5,19 @@ import { cn } from "@/lib/utils";
 import { useReactFlow } from "@xyflow/react";
 import { ReactNode, useEffect } from "react";
 
-// timestamp: 5:05:08
+/**
+ * NodeCard Component.
+ *
+ * Renders a card container for a node in the flow diagram. It displays its children
+ * and conditionally applies styling based on the node's selection state and validation status.
+ * When double-clicked, the view is centered on the node using its position.
+ *
+ * @param {Object} props - Component properties.
+ * @param {string} props.nodeId - The unique identifier of the node.
+ * @param {ReactNode} props.children - The content to be rendered inside the node card.
+ * @param {boolean} props.isSelected - Indicates whether the node is currently selected.
+ * @returns {JSX.Element} The rendered NodeCard component.
+ */
 export default function NodeCard({
   children,
   nodeId,
@@ -15,17 +27,28 @@ export default function NodeCard({
   children: ReactNode;
   isSelected: boolean;
 }) {
+  // Access functions from the React Flow context to get node data and center the view.
   const { getNode, setCenter } = useReactFlow();
+
+  // Retrieve invalid input information from the flow validation hook.
   const { invalidInputs } = useFlowValidation();
-  const hasInvalidInputs =
-    invalidInputs?.some((node) => node.nodeId === nodeId);
+  // Determine if the current node has invalid inputs.
+  const hasInvalidInputs = invalidInputs?.some(
+    (node) => node.nodeId === nodeId
+  );
+
   console.log("hasInvalidInputs: nodeCard", invalidInputs);
 
   useEffect(() => {
     console.log("Updated Invalid Inputs: nodeCard", invalidInputs);
   }, [invalidInputs]);
 
-  // set node parameters
+  /**
+   * nodeSetParams - Centers the view on the node.
+   *
+   * Retrieves the node's position and measured dimensions. Computes the center point and then
+   * uses the setCenter function to focus the view on that position.
+   */
   const nodeSetParams = () => {
     const node = getNode(nodeId);
     if (!node) return;

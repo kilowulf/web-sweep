@@ -18,6 +18,21 @@ interface Props {
   isPublished?: boolean;
 }
 
+/**
+ * Topbar Component.
+ *
+ * Renders a header bar for the workflow editor that includes a back button, title, subtitle,
+ * navigation tabs, and action buttons such as Execute, Save, Publish, and UnPublish. The display
+ * of buttons is conditionally controlled by the `hideButtons` and `isPublished` props.
+ *
+ * @param {Props} props - Component properties.
+ * @param {string} props.title - The title to be displayed in the top bar.
+ * @param {string} [props.subtitle] - Optional subtitle to be displayed beneath the title.
+ * @param {string} props.workflowId - The unique identifier for the workflow.
+ * @param {boolean} [props.hideButtons=false] - Flag to conditionally hide the action buttons.
+ * @param {boolean} [props.isPublished=false] - Flag indicating if the workflow is published.
+ * @returns {JSX.Element} The rendered topbar component.
+ */
 export default function Topbar({
   title,
   subtitle,
@@ -25,9 +40,12 @@ export default function Topbar({
   hideButtons = false,
   isPublished = false
 }: Props) {
+  // Get the router instance for navigation functionality.
   const router = useRouter();
+
   return (
     <header className="flex p-2 border-b-2 border-separate justify-between w-full h-[60px] sticky top-0 bg-background z-10">
+      {/* Left section: Back button and title/subtitle */}
       <div className="flex gap-1 flex-1">
         <TooltipWrapper content="Back">
           <Button variant={"ghost"} size={"icon"} onClick={() => router.back()}>
@@ -43,7 +61,9 @@ export default function Topbar({
           )}
         </div>
       </div>
+      {/* Middle section: Navigation tabs for switching between editor and runs */}
       <NavigationTabs workflowId={workflowId} />
+      {/* Right section: Action buttons */}
       <div className="flex gap-1 flex-1 justify-end">
         {hideButtons === false && (
           <>

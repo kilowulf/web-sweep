@@ -10,6 +10,15 @@ import { eachDayOfInterval, format } from "date-fns";
 type Stats = Record<string, { success: number; failed: number }>;
 
 const { COMPLETED, FAILED } = ExecutionPhaseStatus;
+
+/**
+ * Retrieves the credit usage for a specific period for the authenticated user.
+ *
+ * @param period - The period for which to retrieve the credit usage.
+ * @returns An array of objects containing the date and the number of successful and failed credits consumed on that date.
+ *
+ * @throws Will throw an error if the user is not authenticated.
+ */
 export async function GetCreditUsageInPeriod(period: Period) {
   const { userId } = auth();
   if (!userId) {
@@ -61,3 +70,4 @@ export async function GetCreditUsageInPeriod(period: Period) {
 
   return result;
 }
+

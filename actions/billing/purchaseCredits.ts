@@ -7,6 +7,18 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
 // timestamp: 14:23:11
+/**
+ * This function handles the purchase of credits for a user.
+ * It creates a checkout session with Stripe to process the payment.
+ *
+ * @param packId - The ID of the credits pack selected by the user.
+ *
+ * @throws Will throw an error if the user is not authenticated.
+ * @throws Will throw an error if the selected pack is invalid.
+ * @throws Will throw an error if the checkout session creation fails.
+ *
+ * @returns This function does not return a value. It redirects the user to the Stripe checkout page.
+ */
 export async function PurchaseCredits(packId: PackId) {
   const { userId } = auth();
   if (!userId) {
@@ -42,3 +54,4 @@ export async function PurchaseCredits(packId: PackId) {
 
   redirect(session.url);
 }
+

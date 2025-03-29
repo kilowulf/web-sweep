@@ -19,6 +19,19 @@ import cronstrue from "cronstrue";
 import { RemoveWorkflowSchedule } from "@/actions/workflows/removeWorkflowSchedule";
 import { Separator } from "@/components/ui/separator";
 
+/**
+ * SchedulerDialog Component.
+ *
+ * Renders a dialog that allows the user to set, update, or remove a cron schedule
+ * for periodic workflow execution. The component validates the cron expression and
+ * displays a human-readable description of the schedule.
+ *
+ * @param {Object} props - Component properties.
+ * @param {string|null} props.cron - The current cron expression for the workflow, or null if not set.
+ * @param {string} props.workflowId - The unique identifier of the workflow.
+ * @returns {JSX.Element} The SchedulerDialog component.
+ */
+
 export default function SchedulerDialog(props: {
   cron: string | null;
   workflowId: string;
@@ -75,6 +88,7 @@ export default function SchedulerDialog(props: {
 
   return (
     <Dialog>
+      {/* Dialog trigger button displays the current schedule or a prompt to set one */}
       <DialogTrigger asChild>
         <Button
           variant={"link"}
@@ -98,11 +112,13 @@ export default function SchedulerDialog(props: {
         </Button>
       </DialogTrigger>
       <DialogContent className="px-0">
+        {/* Custom header with title and calendar icon */}
         <CustomDialogHeader
           title="Schedule workflow execution"
           icon={CalendarIcon}
         />
         <div className="p-6 space-y-4">
+          {/* Instructional text */}
           <p className="text-muted-foreground text-sm">
             Specify a cron expression to schedule periodic workflow execution.
             <br />
@@ -110,11 +126,13 @@ export default function SchedulerDialog(props: {
               * All times are UTC timezone
             </span>
           </p>
+          {/* Input for the cron expression */}
           <Input
             placeholder="e.g. * * * * *"
             value={cron}
             onChange={(e) => setCron(e.target.value)}
           />
+          {/* Display the human-readable cron string with dynamic styling based on validity */}
           <div
             className={cn(
               "bg-accent rounded-md p-4 border text-sm",
@@ -125,6 +143,7 @@ export default function SchedulerDialog(props: {
           >
             {humanCronStr}
           </div>
+          {/* If a valid schedule exists, provide an option to remove it */}
           {workflowHasValidCron && (
             <DialogClose asChild>
               <div className="">
@@ -146,6 +165,7 @@ export default function SchedulerDialog(props: {
             </DialogClose>
           )}
         </div>
+        {/* Dialog footer with Cancel and Save actions */}
         <DialogFooter className="px-6 gap-2">
           <DialogClose asChild>
             <Button className="w-full" variant={"secondary"}>

@@ -2,6 +2,15 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
+/**
+ * NotFoundPage Component.
+ *
+ * Renders a custom 404 error page that informs the user the requested page was not found.
+ * The page includes a prominent "404" header, a brief message, and a link to navigate back to the dashboard.
+ * It also includes a footer message suggesting the user contact support if they believe this is an error.
+ *
+ * @returns {JSX.Element} The rendered 404 error page.
+ */
 export default function NotFoundPage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">

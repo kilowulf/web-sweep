@@ -11,7 +11,15 @@ import { timingSafeEqual } from "crypto";
 import { parsers } from "date-fns";
 import { CronExpressionParser } from "cron-parser";
 
-function isValidSecret(secret: string) {
+/**
+ * Validates the provided secret against the API secret stored in environment variables.
+ *
+ * Uses a timing-safe comparison to mitigate timing attacks.
+ *
+ * @param {string} secret - The secret to validate.
+ * @returns {boolean} True if the secret is valid, false otherwise.
+ */
+function isValidSecret(secret: string): boolean {
   const API_SECRET = process.env.API_SECRET;
   if (!API_SECRET) {
     return false;
@@ -23,37 +31,51 @@ function isValidSecret(secret: string) {
   }
 }
 
-export async function GET(request: Request) {
+/**
+ * GET handler for executing a workflow triggered by a cron schedule.
+ *
+ * This function:
+ * - Validates the incoming request's Bearer token.
+ * - Retrieves the workflow specified by the "workflowId" query parameter.
+ * - Parses the workflow's execution plan and cron schedule.
+ * - Creates a new workflow execution record in the database.
+ * - Triggers the workflow execution based on the next scheduled run time.
+ *
+ * @param {Request} request - The incoming request object.
+ * @returns {Promise<Response>} A JSON response indicating the outcome of the request.
+ */
+export async function GET(request: Request): Promise<Response> {
+  // Validate the authorization header for a Bearer token.
   const authHeader = request.headers.get("authorization");
-
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  // Extract and validate the secret from the authorization header.
   const secret = authHeader.split(" ")[1];
   if (!isValidSecret(secret)) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  // Extract the workflowId from the URL's query parameters.
   const { searchParams } = new URL(request.url);
   const workflowId = searchParams.get("workflowId") as string;
-
   if (!workflowId) {
     return Response.json({ error: "Bad Request" }, { status: 400 });
   }
 
+  // Retrieve the workflow from the database.
   const workflow = await prisma.workFlow.findUnique({
     where: { id: workflowId }
   });
-
   if (!workflow) {
     return Response.json({ error: "Workflow not found" }, { status: 400 });
   }
 
+  // Parse the execution plan from the workflow record.
   const executionPlan = JSON.parse(
     workflow.executionPlan!
   ) as WorkflowExecutionPlan;
-
   if (!executionPlan) {
     return Response.json(
       { error: "Execution plan not found" },
@@ -62,8 +84,11 @@ export async function GET(request: Request) {
   }
 
   try {
+    // Parse the cron expression and compute the next run date.
     const cron = CronExpressionParser.parse(workflow.cron!, { tz: "UTC" });
     const nextRun = cron.next().toDate();
+
+    // Create a new workflow execution record in the database.
     const execution = await prisma.workflowExecution.create({
       data: {
         workflowId,
@@ -88,6 +113,7 @@ export async function GET(request: Request) {
       }
     });
 
+    // Trigger the workflow execution, scheduling it for the next run time.
     await ExecuteWorkflow(execution.id, nextRun);
     return new Response(null, { status: 200 });
   } catch (error) {

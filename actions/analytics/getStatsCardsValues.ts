@@ -8,6 +8,18 @@ import { auth } from "@clerk/nextjs/server";
 
 const { COMPLETED, FAILED } = WorkflowExecutionStatus;
 
+/**
+ * Retrieves and calculates statistics for the user's workflow executions within a specified period.
+ *
+ * @param period - The time period for which to retrieve and calculate statistics.
+ *
+ * @returns An object containing the following statistics:
+ * - `workflowExecutions`: The total number of workflow executions within the specified period.
+ * - `creditsConsumed`: The total number of credits consumed by all workflow executions within the specified period.
+ * - `phaseExecutions`: The total number of phase executions within the specified period.
+ *
+ * @throws Will throw an error if the user is not authenticated.
+ */
 export async function GetStatsCardsValues(period: Period) {
   const { userId } = auth();
   if (!userId) {
@@ -58,3 +70,4 @@ export async function GetStatsCardsValues(period: Period) {
 
   return stats;
 }
+

@@ -17,6 +17,16 @@ import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 
+/**
+ * Props for the DeleteWorkflowDialog component.
+ *
+ * @typedef {Object} Props
+ * @property {boolean} open - Determines if the dialog is open.
+ * @property {(open: boolean) => void} setOpen - Function to update the dialog's open state.
+ * @property {string} workflowName - The name of the workflow to be deleted.
+ * @property {string} workflowId - The unique identifier of the workflow.
+ */
+
 interface Props {
   open: boolean;
   setOpen: (open: boolean) => void;
@@ -24,13 +34,29 @@ interface Props {
   workflowId: string;
 }
 
+/**
+ * DeleteWorkflowDialog Component.
+ *
+ * Renders a confirmation dialog that prompts the user to enter the workflow name in order
+ * to confirm deletion. It uses a mutation hook to call the DeleteWorkflow action and shows
+ * toast notifications for success or error states.
+ *
+ * @param {Props} props - The component properties.
+ * @returns {JSX.Element} The alert dialog for deleting a workflow.
+ */
+
 export default function DeleteWorkflowDialog({
   open,
   setOpen,
   workflowName,
   workflowId
 }: Props) {
+  // State to store the confirmation input text.
   const [confirmText, setConfirmText] = useState("");
+
+  // Setup mutation for deleting the workflow.
+  // On success, a success toast is displayed and the confirmation text is reset.
+  // On error, an error toast is displayed.
   const deleteMutation = useMutation({
     mutationFn: DeleteWorkflow,
     onSuccess: () => {
@@ -58,6 +84,7 @@ export default function DeleteWorkflowDialog({
               <p>
                 Enter <b>{workflowName}</b> to confirm:
               </p>
+              {/* Input for user confirmation: the workflow name must be entered exactly */}
               <Input
                 value={confirmText}
                 onChange={(e) => setConfirmText(e.target.value)}
@@ -66,9 +93,12 @@ export default function DeleteWorkflowDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
+          {/* Cancel button: resets the confirmation text when clicked */}
           <AlertDialogCancel onClick={() => setConfirmText("")}>
             Cancel
           </AlertDialogCancel>
+          {/* Delete button: triggers the delete mutation if the confirmation text matches
+              the workflow name and the deletion is not already in progress */}
           <AlertDialogAction
             disabled={confirmText !== workflowName || deleteMutation.isPending}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"

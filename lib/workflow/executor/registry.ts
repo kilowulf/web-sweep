@@ -14,13 +14,29 @@ import { AddPropertyToJsonExecutor } from "@/lib/workflow/executor/AddPropertyTo
 import { NavigateUrlExecutor } from "@/lib/workflow/executor/NavigateUrlExecutor";
 import { ScrollToElementExecutor } from "@/lib/workflow/executor/ScrollToElementExecutor";
 
+/**
+ * ExecutorFn is a type alias for an executor function that takes an execution environment
+ * for a specific workflow task and returns a promise that resolves to a boolean.
+ *
+ * @template T - The type of workflow task.
+ */
 type ExecutorFn<T extends WorkflowTask> = (
   environment: ExecutionEnvironment<T>
 ) => Promise<boolean>;
 
+/**
+ * RegistryType is a mapping of TaskType values to their corresponding executor functions.
+ * Each task type key maps to an executor function that handles that specific task.
+ */
 type RegistryType = {
   [K in TaskType]: ExecutorFn<WorkflowTask & { type: K }>;
 };
+
+/**
+ * ExecutorRegistry is a centralized registry that maps each workflow task type to its
+ * corresponding executor function. This registry is used to dynamically execute tasks
+ * based on their type.
+ */
 export const ExecutorRegistry: RegistryType = {
   LAUNCH_BROWSER: LaunchBrowserExecutor,
   PAGE_TO_HTML: PageToHtmlExecutor,

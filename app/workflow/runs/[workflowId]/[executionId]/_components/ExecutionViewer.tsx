@@ -1,4 +1,5 @@
 "use client";
+
 import { GetWorkflowExecutionWithPhases } from "@/actions/workflows/GetWorkflowExecutionsWithPhases";
 import { GetWorkflowPhaseDetails } from "@/actions/workflows/getWorkflowPhaseDetails";
 import { Badge } from "@/components/ui/badge";
@@ -44,14 +45,34 @@ import { LogLevel } from "@/types/log";
 import PhaseStatusBadge from "@/app/workflow/runs/[workflowId]/[executionId]/_components/PhaseStatusBadge";
 import ReactCountUpWrapper from "@/components/ReactCountUpWrapper";
 
+/**
+ * Type representing the data structure for workflow execution details.
+ * It is derived from the asynchronous response of GetWorkflowExecutionWithPhases.
+ *
+ * @typedef {Promise<ReturnType<typeof GetWorkflowExecutionWithPhases>>} ExecutionData
+ */
 type ExecutionData = Awaited<ReturnType<typeof GetWorkflowExecutionWithPhases>>;
 
+/**
+ * ExecutionViewer Component.
+ *
+ * Renders a detailed view of a workflow execution, including execution metadata,
+ * phases, and logs. The component uses react-query to fetch and periodically refresh
+ * the execution data. It displays execution details such as status, start time, duration,
+ * and credits consumed, and allows selecting phases to view detailed inputs, outputs, and logs.
+ *
+ * @param {Object} props - Component properties.
+ * @param {ExecutionData} props.initialData - The initial execution data to display.
+ * @returns {JSX.Element} The rendered execution viewer.
+ */
 export default function ExecutionViewer({
   initialData
 }: {
   initialData: ExecutionData;
 }) {
   const [selectedPhase, setSelectedPhase] = useState<string | null>(null);
+
+  // Fetch the execution data with periodic refresh (every 1s if running).
   const query = useQuery({
     queryKey: ["execution", initialData?.id],
     initialData,
@@ -60,6 +81,7 @@ export default function ExecutionViewer({
       q.state.data?.status === WorkflowExecutionStatus.RUNNING ? 1000 : false
   });
 
+  // Fetch details for the selected phase.
   const phaseDetails = useQuery({
     queryKey: ["phaseDetails", selectedPhase, query.data?.status],
     enabled: selectedPhase !== null,
@@ -68,35 +90,36 @@ export default function ExecutionViewer({
 
   const isRunning = query.data?.status === WorkflowExecutionStatus.RUNNING;
 
+  // Auto-select a phase based on running/completed state.
   useEffect(() => {
-    // while running, auto-select current running phases in sidebar
     const phases = query.data?.phases || [];
     if (isRunning) {
-      // select last executed phase
+      // When running, select the last executed phase.
       const phaseToSelect = phases.toSorted((a, b) =>
         a.startedAt! > b.startedAt! ? -1 : 1
       )[0];
-
       setSelectedPhase(phaseToSelect.id);
       return;
     }
+    // When not running, select the phase that finished most recently.
     const phaseToSelect = phases.toSorted((a, b) =>
       a.completedAt! > b.completedAt! ? -1 : 1
     )[0];
     setSelectedPhase(phaseToSelect.id);
-  }, [query.data?.phases, isRunning, setSelectedPhase]);
+  }, [query.data?.phases, isRunning]);
 
   const duration = DatesToDurationString(
     query.data?.completedAt,
     query.data?.startedAt
   );
-
   const creditsConsumed = GetPhasesTotalCost(query.data?.phases || []);
+
   return (
     <div className="flex w-full h-full">
+      {/* Sidebar displaying execution metadata and list of phases */}
       <aside className="w-[440px] min-w-[440px] max-w-[440px] border-r-2 border-separate flex flex-grow flex-col overflow-hidden">
         <div className="py-4 px-2">
-          {/*Status Label */}
+          {/* Status Label */}
           <ExecutionLabel
             icon={CircleDashedIcon}
             label="Status"
@@ -109,8 +132,7 @@ export default function ExecutionViewer({
               </div>
             }
           />
-
-          {/*Started At */}
+          {/* Started At */}
           <ExecutionLabel
             icon={CalendarIcon}
             label="Started at"
@@ -124,7 +146,7 @@ export default function ExecutionViewer({
               </span>
             }
           />
-          {/*Duration */}
+          {/* Duration */}
           <ExecutionLabel
             icon={ClockIcon}
             label="Duration"
@@ -136,7 +158,7 @@ export default function ExecutionViewer({
               )
             }
           />
-          {/*Credits */}
+          {/* Credits Consumed */}
           <ExecutionLabel
             icon={CoinsIcon}
             label="Credits consumed"
@@ -171,6 +193,7 @@ export default function ExecutionViewer({
           ))}
         </div>
       </aside>
+      {/* Main content displaying phase details or placeholder messages */}
       <div className="flex w-full h-full">
         {isRunning && (
           <div className="flex items-center flex-col gap-2 justify-center h-full w-full">
@@ -215,13 +238,11 @@ export default function ExecutionViewer({
               subTitle="Inputs used for this phase"
               paramsJson={phaseDetails.data.inputs}
             />
-
             <ParamaterViewer
               title="Outputs"
               subTitle="Outputs generated by this phase"
               paramsJson={phaseDetails.data.outputs}
             />
-
             <LogViewer logs={phaseDetails.data.logs} />
           </div>
         )}
@@ -230,6 +251,17 @@ export default function ExecutionViewer({
   );
 }
 
+/**
+ * ExecutionLabel Component.
+ *
+ * Renders a row with an icon, label, and value used to display an execution attribute.
+ *
+ * @param {Object} props - Component properties.
+ * @param {LucideIcon} props.icon - The icon to display.
+ * @param {ReactNode} props.label - The label text.
+ * @param {ReactNode} props.value - The value to display.
+ * @returns {JSX.Element} The rendered execution label row.
+ */
 function ExecutionLabel({
   icon,
   label,
@@ -253,6 +285,17 @@ function ExecutionLabel({
   );
 }
 
+/**
+ * ParamaterViewer Component.
+ *
+ * Renders a card that displays key-value pairs of parameters parsed from a JSON string.
+ *
+ * @param {Object} props - Component properties.
+ * @param {string} props.title - The title of the parameter viewer.
+ * @param {string} props.subTitle - A descriptive subtitle.
+ * @param {string | null} props.paramsJson - A JSON string containing parameters.
+ * @returns {JSX.Element} The rendered parameter viewer card.
+ */
 function ParamaterViewer({
   title,
   subTitle,
@@ -298,6 +341,16 @@ function ParamaterViewer({
   );
 }
 
+/**
+ * LogViewer Component.
+ *
+ * Renders a card containing a table of execution logs.
+ * If no logs are present, the component returns null.
+ *
+ * @param {Object} props - Component properties.
+ * @param {ExecutionLog[] | undefined} props.logs - An array of execution log objects.
+ * @returns {JSX.Element | null} The rendered log viewer or null if no logs exist.
+ */
 function LogViewer({ logs }: { logs: ExecutionLog[] | undefined }) {
   if (!logs || logs.length === 0) return null;
 

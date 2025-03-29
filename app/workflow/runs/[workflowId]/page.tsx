@@ -4,6 +4,18 @@ import { Suspense } from "react";
 import { InboxIcon, Loader2Icon } from "lucide-react";
 import ExecutionsTable from "@/app/workflow/runs/[workflowId]/_components/ExecutionsTable";
 
+/**
+ * ExecutionsPage Component.
+ *
+ * This component renders the main page displaying all workflow runs.
+ * It includes a top navigation bar (Topbar) with title and subtitle, and
+ * uses a Suspense boundary to lazily load the executions table.
+ *
+ * @param {Object} props - Component properties.
+ * @param {Object} props.params - Route parameters.
+ * @param {string} props.params.workflowId - The unique identifier of the workflow.
+ * @returns {JSX.Element} The rendered ExecutionsPage component.
+ */
 export default function ExecutionsPage({
   params
 }: {
@@ -29,8 +41,18 @@ export default function ExecutionsPage({
     </div>
   );
 }
-// timestamp: 8:49:05
 
+/**
+ * ExecutionsTableWrapper Component.
+ *
+ * This asynchronous component fetches the executions data for the given workflow using
+ * the GetWorkflowExecutions action and renders the ExecutionsTable component.
+ * It handles cases where no data is returned or the executions array is empty.
+ *
+ * @param {Object} props - Component properties.
+ * @param {string} props.workflowId - The unique identifier of the workflow.
+ * @returns {Promise<JSX.Element>} The rendered executions table or a message indicating no data.
+ */
 async function ExecutionsTableWrapper({ workflowId }: { workflowId: string }) {
   const executions = await GetWorkflowExecutions(workflowId);
   if (!executions) {

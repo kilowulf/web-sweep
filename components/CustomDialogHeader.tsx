@@ -16,7 +16,16 @@ interface Props {
   subTitleClassName?: string;
 }
 
-// timestamp: 1:05:10
+/**
+ * CustomDialogHeader Component.
+ *
+ * Renders a custom header for dialogs. The header includes an optional icon, title, and subtitle,
+ * followed by a separator. It uses DialogHeader and DialogTitle components from the UI library.
+ *
+ * @param {Props} props - Component properties.
+ * @returns {JSX.Element} The rendered custom dialog header.
+ */
+
 export default function CustomDialogHeader(props: Props) {
   return (
     <DialogHeader className="py-6">
@@ -39,7 +48,7 @@ export default function CustomDialogHeader(props: Props) {
                 "text-sm text-muted-foreground",
                 props.subTitleClassName
               )}
-            >
+            >s
               {props.subTitle}
             </p>
           )}

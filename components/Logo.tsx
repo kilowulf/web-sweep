@@ -7,6 +7,19 @@ import {
 import Link from "next/link";
 import React from "react";
 
+/**
+ * Logo Component.
+ *
+ * Renders a clickable logo that navigates to the home page.
+ * The logo consists of an icon with a gradient background and styled text.
+ * The icon and text colors are defined with gradient and dark/light mode styles.
+ *
+ * @param {LogoProps} props - Component properties.
+ * @param {string} [props.fontSize="text-2xl"] - Optional font size class for the logo text.
+ * @param {number} [props.iconSize=20] - Optional size for the logo icon.
+ * @returns {JSX.Element} The rendered logo component.
+ */
+
 export default function Logo({
   fontSize = "text-2xl",
   iconSize = 20

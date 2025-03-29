@@ -45,7 +45,16 @@ const statusColors = {
   [WorkflowStatus.PUBLISHED]: "bg-green-500"
 };
 
-// timestamp: 1:44:00
+/**
+ * WorkflowCard Component.
+ *
+ * Renders a card displaying key details of a workflow including its status, name, scheduling information,
+ * and various actions such as run, edit, duplicate, and delete.
+ *
+ * @param {Object} props - Component properties.
+ * @param {WorkFlow} props.workflow - The workflow data to display.
+ * @returns {JSX.Element} The rendered workflow card.
+ */
 export default function WorkflowCard({ workflow }: { workflow: WorkFlow }) {
   const isDraft = workflow.status === WorkflowStatus.DRAFT;
   return (
@@ -116,6 +125,16 @@ export default function WorkflowCard({ workflow }: { workflow: WorkFlow }) {
   );
 }
 
+/**
+ * WorkflowActions Component.
+ *
+ * Renders a dropdown menu with additional actions for a workflow, such as deletion.
+ *
+ * @param {Object} props - Component properties.
+ * @param {string} props.workflowName - The name of the workflow.
+ * @param {string} props.workflowId - The unique identifier of the workflow.
+ * @returns {JSX.Element} The rendered actions dropdown.
+ */
 function WorkflowActions({
   workflowName,
   workflowId
@@ -160,6 +179,19 @@ function WorkflowActions({
   );
 }
 
+/**
+ * SchedulerSection Component.
+ *
+ * Displays scheduling information for a workflow. When the workflow is published (not in draft),
+ * it shows a scheduler dialog to update the cron schedule and a badge indicating credit consumption.
+ *
+ * @param {Object} props - Component properties.
+ * @param {boolean} props.isDraft - Indicates if the workflow is in draft mode.
+ * @param {number} props.creditsCost - The cost in credits for running the workflow.
+ * @param {string} props.workflowId - The unique identifier of the workflow.
+ * @param {string|null} props.cron - The cron expression string for scheduling.
+ * @returns {JSX.Element|null} The rendered scheduling section or null if the workflow is a draft.
+ */
 function SchedulerSection({
   isDraft,
   creditsCost,
@@ -175,7 +207,10 @@ function SchedulerSection({
   return (
     <div className="flex items-center gap-2">
       <CornerRightDown className="h-4 w-4 text-muted-foreground" />
-      {/* Adding a key utilizes the systems default behavior forcing a refresh when a key is changed*/}
+      {/**
+       * SchedulerDialog renders a dialog to update or set the cron schedule.
+       * A key is provided to force a refresh when the cron or workflowId changes.
+       */}
       <SchedulerDialog
         workflowId={workflowId}
         cron={cron}
@@ -196,6 +231,16 @@ function SchedulerSection({
   );
 }
 
+/**
+ * LastRunDetails Component.
+ *
+ * Displays information about the last and upcoming runs of a workflow. If the workflow is published,
+ * it shows the time since the last run, the run status, and details about the next scheduled run.
+ *
+ * @param {Object} props - Component properties.
+ * @param {WorkFlow} props.workflow - The workflow object containing run details.
+ * @returns {JSX.Element|null} The rendered run details or null if the workflow is a draft.
+ */
 function LastRunDetails({ workflow }: { workflow: WorkFlow }) {
   const isDraft = workflow.status === WorkflowStatus.DRAFT;
   if (isDraft) {
@@ -211,7 +256,7 @@ function LastRunDetails({ workflow }: { workflow: WorkFlow }) {
   return (
     <div className="bg-primary/5 px-4 py-1 flex justify-between items-center text-muted-foreground ">
       <div className="flex items-center text-sm gap-2 group">
-        {lastRunAt && (
+        {lastRunAt ? (
           <Link
             href={`/workflow/runs/${workflow.id}/${lastRunId}`}
             className="flex items-center text-sm gap-2"
@@ -223,15 +268,15 @@ function LastRunDetails({ workflow }: { workflow: WorkFlow }) {
             <ExecutionStatusLabel
               status={lastRunStatus as WorkflowExecutionStatus}
             />
-
             <span>{formattedStartedAt}</span>
             <ChevronRightIcon
               size={14}
               className="-translate-x-[2px] group-hover:translate-x-0 transition"
             />
           </Link>
+        ) : (
+          <p>No runs yet</p>
         )}
-        {!lastRunAt && <p>No runs yet</p>}
       </div>
       {nextRunAt && (
         <div className="flex items-center text-sm gap-2">

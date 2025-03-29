@@ -27,10 +27,14 @@ import {
 } from "@/schema/credential";
 import { CreateCredential } from "@/actions/credentials/createCredential";
 
-export default function CreateCredentialDialog({
-  triggerText
-}: {
-  triggerText?: string;
+/**
+ * A React functional component that renders a dialog for creating a new credential.
+ *
+ * @param triggerText - An optional string to customize the text displayed on the button that triggers the dialog.
+ *
+ * @returns A React functional component that renders the dialog for creating a new credential.
+ */
+export default function CreateCredentialDialog({triggerText}: {  triggerText?: string;
 }) {
   const [open, setOpen] = React.useState(false);
   const form = useForm<createCredentialSchemaType>({
@@ -127,3 +131,4 @@ export default function CreateCredentialDialog({
     </Dialog>
   );
 }
+

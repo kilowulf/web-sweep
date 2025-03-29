@@ -30,6 +30,17 @@ import { toast } from "sonner";
  * 
  */
 
+/**
+ * Invoice Button Component
+ *
+ * This component renders a button that, when clicked, triggers the download of an invoice.
+ * It uses the React Query `useMutation` hook to manage the asynchronous operation.
+ *
+ * @param {object} props - Component props
+ * @param {string} props.id - Invoice ID
+ *
+ * @returns {JSX.Element} - Invoice button component
+ */
 export default function InvoiceBtn({ id }: { id: string }) {
   const mutation = useMutation({
     mutationFn: DownloadInvoice,
@@ -38,6 +49,7 @@ export default function InvoiceBtn({ id }: { id: string }) {
       toast.error("Failed to download invoice");
     }
   });
+
   return (
     <Button
       variant={"ghost"}
@@ -51,3 +63,4 @@ export default function InvoiceBtn({ id }: { id: string }) {
     </Button>
   );
 }
+

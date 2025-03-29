@@ -15,6 +15,17 @@ interface Props {
   side?: "top" | "bottom" | "left" | "right";
 }
 
+/**
+ * TooltipWrapper Component.
+ *
+ * This component wraps its children with tooltip functionality.
+ * If the `content` prop is provided, it renders the tooltip using the UI tooltip components.
+ * Otherwise, it renders the children as-is.
+ *
+ * @param {Props} props - Component properties.
+ * @returns {JSX.Element} The rendered children wrapped with tooltip functionality if content exists.
+ */
+
 export default function TooltipWrapper(props: Props) {
   if (!props.content) {
     return <>{props.children}</>;

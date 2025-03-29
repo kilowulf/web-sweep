@@ -13,7 +13,15 @@ import { TaskType } from "@/types/task";
 import { CoinsIcon } from "lucide-react";
 import React from "react";
 
-//timestamp: 3:09:52
+/**
+ * TaskMenu Component.
+ *
+ * Renders a sidebar containing an accordion menu for various task categories.
+ * Each accordion item corresponds to a category (e.g., User Interactions, Data Extraction)
+ * and displays task buttons (TaskMenuBtn) for the available task types.
+ *
+ * @returns {JSX.Element} The rendered task menu sidebar.
+ */
 export default function TaskMenu() {
   return (
     <aside className="w-[340px] min-w-[340px] max-w-[340px] border-r-2 border-separate h-full p-2 px-4 overflow-auto">
@@ -28,7 +36,7 @@ export default function TaskMenu() {
           "storage"
         ]}
       >
-        {/** User Interactive Tasks**/}
+        {/** User Interactive Tasks **/}
         <AccordionItem value="interactions">
           <AccordionTrigger className="font-bold">
             User Interactions
@@ -40,7 +48,7 @@ export default function TaskMenu() {
             <TaskMenuBtn taskType={TaskType.SCROLL_TO_ELEMENT} />
           </AccordionContent>
         </AccordionItem>
-        {/** Data Extraction Tasks**/}
+        {/** Data Extraction Tasks **/}
         <AccordionItem value="extraction">
           <AccordionTrigger className="font-bold">
             Data extraction
@@ -51,7 +59,7 @@ export default function TaskMenu() {
             <TaskMenuBtn taskType={TaskType.EXTRACT_DATA_WITH_AI} />
           </AccordionContent>
         </AccordionItem>
-        {/** Data Storage Tasks**/}
+        {/** Data Storage Tasks **/}
         <AccordionItem value="storage">
           <AccordionTrigger className="font-bold">
             Data storage
@@ -61,7 +69,7 @@ export default function TaskMenu() {
             <TaskMenuBtn taskType={TaskType.ADD_PROPERTY_TO_JSON} />
           </AccordionContent>
         </AccordionItem>
-        {/** Timing Control Tasks**/}
+        {/** Timing Control Tasks **/}
         <AccordionItem value="timing">
           <AccordionTrigger className="font-bold">
             Timing controls
@@ -70,7 +78,7 @@ export default function TaskMenu() {
             <TaskMenuBtn taskType={TaskType.WAIT_FOR_ELEMENT} />
           </AccordionContent>
         </AccordionItem>
-        {/** Result Delivery Tasks**/}
+        {/** Result Delivery Tasks **/}
         <AccordionItem value="results">
           <AccordionTrigger className="font-bold">
             Result delivery
@@ -84,13 +92,34 @@ export default function TaskMenu() {
   );
 }
 
+/**
+ * TaskMenuBtn Component.
+ *
+ * Renders a draggable button representing a specific task type.
+ * When dragged, it sets the task type as the data transfer payload, enabling the task
+ * to be dropped onto the workflow editor. The button displays the task's icon, label,
+ * and credit cost.
+ *
+ * @param {Object} props - Component properties.
+ * @param {TaskType} props.taskType - The type of the task to display.
+ * @returns {JSX.Element} The rendered task menu button.
+ */
 function TaskMenuBtn({ taskType }: { taskType: TaskType }) {
   const task = TaskRegistry[taskType];
 
+  /**
+   * onDragStart handler.
+   *
+   * Sets the task type into the data transfer object to enable drag-and-drop.
+   *
+   * @param {React.DragEvent} event - The drag event.
+   * @param {TaskType} type - The task type being dragged.
+   */
   const onDragStart = (event: React.DragEvent, type: TaskType) => {
     event.dataTransfer.setData("application/reactflow", type);
     event.dataTransfer.effectAllowed = "move";
   };
+
   return (
     <Button
       variant={"secondary"}

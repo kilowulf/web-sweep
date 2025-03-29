@@ -43,6 +43,13 @@ import InvoiceBtn from "@/app/(dashboard)/billing/_components/invoiceBtn";
  *
  * @returns {React.ReactElement} - The BillingPage component.
  */
+/**
+ * The BillingPage component is the main entry point for the billing dashboard.
+ * It displays various sections related to user's billing information, such as balance,
+ * credit purchases, daily credit consumption, and transaction history.
+ *
+ * @returns {React.ReactElement} - The BillingPage component.
+ */
 export default function BillingPage() {
   return (
     <div className="mx-auto p-4 space-y-8">
@@ -62,7 +69,12 @@ export default function BillingPage() {
   );
 }
 
-///
+
+/**
+ * Displays the user's available credit balance with an animated counter.
+ *
+ * @returns {React.ReactElement} - The BalanceCard component.
+ */
 async function BalanceCard() {
   const userBalance = await GetAvailableCredits();
   return (
@@ -90,12 +102,27 @@ async function BalanceCard() {
   );
 }
 
+
+/**
+ * Fetches and displays the credit usage data for the current month.
+ *
+ * @remarks
+ * This function fetches the credit usage data for the current month using the
+ * `GetCreditUsageInPeriod` action. It then passes the data to the `CreditUsageChart`
+ * component to render a chart.
+ *
+ * @returns {React.ReactElement} - The CreditUsageCard component with the fetched data.
+ *
+ * @throws Will throw an error if the `GetCreditUsageInPeriod` action fails.
+ */
 async function CreditUsageCard() {
   const period: Period = {
     month: new Date().getMonth(),
     year: new Date().getFullYear()
   };
+
   const data = await GetCreditUsageInPeriod(period);
+
   return (
     <CreditUsageChart
       data={data}
@@ -105,6 +132,18 @@ async function CreditUsageCard() {
   );
 }
 
+
+/**
+ * Fetches and displays the user's transaction history.
+ *
+ * This function fetches the user's purchase history using the `GetUserPurchaseHistory` action.
+ * It then renders a card component displaying the transaction history, including the date, description,
+ * amount, and an invoice download button for each purchase.
+ *
+ * @returns {React.ReactElement} - The TransactionHistoryCard component with the fetched data.
+ *
+ * @throws Will throw an error if the `GetUserPurchaseHistory` action fails.
+ */
 async function TransactionHistoryCard() {
   const purchases = await GetUserPurchaseHistory();
   return (
@@ -145,6 +184,12 @@ async function TransactionHistoryCard() {
     </Card>
   );
 
+  /**
+   * Formats a date object into a human-readable string.
+   *
+   * @param {Date} date - The date to format.
+   * @returns {string} - The formatted date string.
+   */
   function formatDate(date: Date) {
     return new Intl.DateTimeFormat("en-US", {
       year: "numeric",
@@ -153,6 +198,13 @@ async function TransactionHistoryCard() {
     }).format(date);
   }
 
+  /**
+   * Formats an amount and currency into a human-readable string.
+   *
+   * @param {number} amount - The amount to format.
+   * @param {string} currency - The currency code.
+   * @returns {string} - The formatted amount string.
+   */
   function formatAmount(amount: number, currency: string) {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -160,3 +212,4 @@ async function TransactionHistoryCard() {
     }).format(amount / 100);
   }
 }
+

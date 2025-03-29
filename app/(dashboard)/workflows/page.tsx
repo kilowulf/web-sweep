@@ -6,7 +6,14 @@ import React, { Suspense } from "react";
 import CreateWorkflowDialog from "./_components/CreateWorkflowDialog";
 import WorkflowCard from "./_components/WorkflowCard";
 
-// timestamp 55:09
+/**
+ * Main page component for managing workflows.
+ *
+ * Renders a header with a title, description, and a button to create a new workflow.
+ * It also displays the user's workflows in a Suspense wrapper with a fallback skeleton.
+ *
+ * @returns {JSX.Element} The rendered workflows management page.
+ */
 export default function page() {
   return (
     <div className="flex-1 flex flex-col h-full">
@@ -26,6 +33,13 @@ export default function page() {
   );
 }
 
+/**
+ * UserWorkflowsSkeleton Component.
+ *
+ * Provides a skeleton loader UI as a fallback while workflows data is being fetched.
+ *
+ * @returns {JSX.Element} The skeleton loader for workflows.
+ */
 function UserWorkflowsSkeleton() {
   return (
     <div className="space-y-2">
@@ -36,6 +50,17 @@ function UserWorkflowsSkeleton() {
   );
 }
 
+/**
+ * UserWorkflows Component.
+ *
+ * Asynchronously fetches the list of workflows for the user and renders them.
+ * - If fetching fails, displays an error alert.
+ * - If no workflows are found, displays an empty state with a prompt to create one.
+ * - Otherwise, renders a grid of WorkflowCard components.
+ *
+ * @async
+ * @returns {Promise<JSX.Element>} The rendered workflows list or an appropriate message.
+ */
 async function UserWorkflows() {
   const workflows = await GetWorkflowsForUser();
   if (!workflows) {

@@ -6,6 +6,20 @@ import {
   Loader2Icon
 } from "lucide-react";
 
+/**
+ * PhaseStatusBadge Component.
+ *
+ * Renders an icon that represents the status of a workflow execution phase.
+ * - PENDING: Displays a dashed circle icon.
+ * - RUNNING: Displays a spinning loader icon.
+ * - COMPLETED: Displays a check circle icon.
+ * - FAILED: Displays a circle with an X icon.
+ * If the status is not recognized, it renders a simple div with the status text.
+ *
+ * @param {Object} props - Component properties.
+ * @param {ExecutionPhaseStatus} props.status - The status of the execution phase.
+ * @returns {JSX.Element} The rendered status badge icon.
+ */
 export default function PhaseStatusBadge({
   status
 }: {

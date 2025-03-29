@@ -29,12 +29,25 @@ import { toast } from "sonner";
 import { DuplicateWorkflow } from "@/actions/workflows/duplicateWorkflow";
 import { cn } from "@/lib/utils";
 
+/**
+ * DuplicateWorkflowDialog Component.
+ *
+ * Renders a dialog containing a form to duplicate an existing workflow. The form is managed
+ * using react-hook-form with Zod schema validation. On form submission, the duplication
+ * process is triggered via a mutation hook, and user feedback is provided through toast notifications.
+ *
+ * @param {Object} props - Component properties.
+ * @param {string} [props.workflowId] - Optional workflow ID to be duplicated, used as a default form value.
+ * @returns {JSX.Element} The DuplicateWorkflowDialog component.
+ */
 export default function DuplicateWorkflowDialog({
   workflowId
 }: {
   workflowId?: string;
 }) {
+  // State to manage the dialog's open/closed status.
   const [open, setOpen] = React.useState(false);
+  // Initialize the form with default values and schema validation using zodResolver.
   const form = useForm<duplicateWorkflowSchemaType>({
     resolver: zodResolver(duplicateWorkflowSchema),
     defaultValues: {
@@ -42,6 +55,9 @@ export default function DuplicateWorkflowDialog({
     }
   });
 
+  // Setup a mutation hook to handle workflow duplication.
+  // On success, display a success toast and toggle the dialog's open state.
+  // On error, display an error toast.
   const { mutate, isPending } = useMutation({
     mutationFn: DuplicateWorkflow,
     onSuccess: () => {
@@ -55,6 +71,14 @@ export default function DuplicateWorkflowDialog({
     }
   });
 
+  /**
+   * onSubmit Callback.
+   *
+   * Handles form submission by triggering a loading toast and calling the duplication mutation
+   * with the provided form values.
+   *
+   * @param {duplicateWorkflowSchemaType} values - The form values submitted by the user.
+   */
   const onSubmit = useCallback(
     (values: duplicateWorkflowSchemaType) => {
       toast.loading("Duplicating workflow...", { id: "duplicate-workflow" });
@@ -71,6 +95,7 @@ export default function DuplicateWorkflowDialog({
         setOpen(open);
       }}
     >
+      {/* Button to trigger the dialog, styled to show on hover */}
       <DialogTrigger asChild>
         <Button
           variant={"ghost"}
@@ -139,6 +164,7 @@ export default function DuplicateWorkflowDialog({
                   </FormItem>
                 )}
               />
+              {/* Submit button: displays "Continue" when not pending, or a loader icon when pending */}
               <Button type="submit" className="w-full" disabled={isPending}>
                 {!isPending ? "Continue" : <Loader2 className="animate-spin" />}
               </Button>

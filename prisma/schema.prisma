@@ -1,115 +1,218 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
+// Generator configuration for Prisma Client
 generator client {
   provider = "prisma-client-js"
 }
 
+// Data source configuration using SQLite; DATABASE_URL is read from environment variables.
 datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
+/**
+ * The WorkFlow model represents a user-defined workflow.
+ *
+ * Fields:
+ * - id: Unique identifier (cuid).
+ * - userId: The ID of the user who owns this workflow.
+ * - name: The name of the workflow.
+ * - description: An optional description of the workflow.
+ * - definition: A JSON string defining the structure of the workflow.
+ * - executionPlan: An optional JSON string representing the pre-calculated execution plan.
+ * - creditsCost: The total cost in credits to run the workflow (default 0).
+ * - cron: Optional cron expression for scheduled execution.
+ * - status: The workflow status (e.g., DRAFT, PUBLISHED).
+ * - lastRunAt: Timestamp of the last execution.
+ * - lastRunId: Identifier for the last execution.
+ * - lastRunStatus: Status of the last execution.
+ * - nextRunAt: Optional timestamp for the next scheduled run.
+ * - createdAt: Timestamp when the workflow was created.
+ * - updateAt: Timestamp that is automatically updated on changes.
+ *
+ * Relationships:
+ * - executions: An array of WorkflowExecution records related to this workflow.
+ *
+ * Constraints:
+ * - Unique combination of name and userId.
+ */
 model WorkFlow {
-  id  String @id @default(cuid())
-  userId  String
-  name String
-  description String?
-
-  definition String
+  id            String               @id @default(cuid())
+  userId        String
+  name          String
+  description   String?
+  definition    String
   executionPlan String?
-  creditsCost Int @default(0)
-
-  cron String? 
-
-
-  status String   // DRAFT || PUBLISHED
-
-  lastRunAt DateTime?
-  lastRunId String?
+  creditsCost   Int                  @default(0)
+  cron          String?
+  status        String               // e.g., DRAFT, PUBLISHED
+  lastRunAt     DateTime?
+  lastRunId     String?
   lastRunStatus String?
-  nextRunAt DateTime?
+  nextRunAt     DateTime?
+  createdAt     DateTime             @default(now())
+  updateAt      DateTime             @updatedAt
 
-  createdAt DateTime @default(now())
-  updateAt DateTime @updatedAt
+  executions    WorkflowExecution[]
 
-  executions WorkflowExecution[]
-  // User cannot have the same workflows with the same name
   @@unique([name, userId])
-
 }
 
+/**
+ * The WorkflowExecution model represents an instance of a workflow run.
+ *
+ * Fields:
+ * - id: Unique execution identifier (cuid).
+ * - workflowId: Reference to the associated WorkFlow.
+ * - userId: The user who triggered the execution.
+ * - trigger: A string describing how the execution was triggered.
+ * - status: The current status of the execution.
+ * - createdAt: Timestamp when the execution record was created.
+ * - startedAt: Timestamp when the execution started.
+ * - completedAt: Timestamp when the execution completed.
+ * - definition: A JSON string capturing the definition of the workflow at execution time.
+ * - creditsConsumed: The total credits consumed by this execution (default 0).
+ *
+ * Relationships:
+ * - phases: An array of ExecutionPhase records related to this execution.
+ * - workflow: The WorkFlow that this execution belongs to.
+ */
 model WorkflowExecution {
-  id String @id @default(cuid())
-  workflowId String  
-  userId String
-  trigger String
-  status String
-  createdAt DateTime @default(now())
-  startedAt DateTime? 
-  completedAt DateTime?
-  definition String @default("{}")
+  id               String              @id @default(cuid())
+  workflowId       String
+  userId           String
+  trigger          String
+  status           String
+  createdAt        DateTime            @default(now())
+  startedAt        DateTime?
+  completedAt      DateTime?
+  definition       String              @default("{}")
+  creditsConsumed  Int                 @default(0)
 
-  creditsConsumed Int @default(0)
-  
-  phases ExecutionPhase[]
+  phases           ExecutionPhase[]
 
-  // WorkflowExecution belongs to a single Workflow
-  workflow WorkFlow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  // Relation to the parent WorkFlow. Cascading delete ensures execution is removed if the workflow is deleted.
+  workflow         WorkFlow            @relation(fields: [workflowId], references: [id], onDelete: Cascade)
 }
 
+/**
+ * The ExecutionPhase model represents a single phase or step within a workflow execution.
+ *
+ * Fields:
+ * - id: Unique identifier for the phase (cuid).
+ * - userId: The ID of the user executing this phase.
+ * - status: The status of the phase (e.g., PENDING, RUNNING, COMPLETED, FAILED).
+ * - number: The sequential number of the phase.
+ * - node: A JSON string representing the node associated with this phase.
+ * - name: The name of the phase.
+ * - startedAt: Timestamp when the phase started.
+ * - completedAt: Timestamp when the phase completed.
+ * - inputs: A JSON string capturing the inputs provided to the phase.
+ * - outputs: A JSON string capturing the outputs produced by the phase.
+ * - creditsConsumed: Optional credits consumed by this phase.
+ *
+ * Relationships:
+ * - workflowExecutionId: The identifier of the parent WorkflowExecution.
+ * - execution: The parent WorkflowExecution.
+ * - logs: An array of ExecutionLog records associated with this phase.
+ */
 model ExecutionPhase {
-  id String @id @default(cuid())
-  userId String 
-  status String 
-  number Int 
-  node String 
-  name String
-  startedAt DateTime?
-  completedAt DateTime?
-  inputs String?
-  outputs String? 
-
-  creditsConsumed Int?
+  id                String            @id @default(cuid())
+  userId            String 
+  status            String 
+  number            Int 
+  node              String 
+  name              String
+  startedAt         DateTime?
+  completedAt       DateTime?
+  inputs            String?
+  outputs           String? 
+  creditsConsumed   Int?
 
   workflowExecutionId String 
-  execution WorkflowExecution @relation(fields: [workflowExecutionId], references: [id], onDelete: Cascade)
+  execution         WorkflowExecution  @relation(fields: [workflowExecutionId], references: [id], onDelete: Cascade)
 
-  logs ExecutionLog[]
+  logs              ExecutionLog[]
 }
 
+/**
+ * The ExecutionLog model stores log messages generated during the execution of a phase.
+ *
+ * Fields:
+ * - id: Unique identifier for the log entry (cuid).
+ * - logLevel: The severity level of the log (e.g., INFO, ERROR).
+ * - message: The log message.
+ * - timestamp: The time when the log was created (default now).
+ *
+ * Relationships:
+ * - executionPhaseId: Identifier for the associated ExecutionPhase.
+ * - executionPhase: The ExecutionPhase to which this log belongs.
+ */
 model ExecutionLog {
-  id String @id @default(cuid()) 
-  logLevel String  
-  message String
-  timestamp DateTime @default(now())
+  id                String           @id @default(cuid())
+  logLevel          String  
+  message           String
+  timestamp         DateTime         @default(now())
 
-  executionPhaseId String
-  executionPhase ExecutionPhase @relation(fields: [executionPhaseId], references: [id], onDelete: Cascade)
+  executionPhaseId  String
+  executionPhase    ExecutionPhase   @relation(fields: [executionPhaseId], references: [id], onDelete: Cascade)
 }
 
+/**
+ * The UserBalance model tracks the available credits for each user.
+ *
+ * Fields:
+ * - userId: Unique identifier for the user (also serves as the primary key).
+ * - credits: The number of credits the user has (default 0).
+ */
 model UserBalance {
-  userId String @id
-  credits Int @default(0)
+  userId  String @id
+  credits Int    @default(0)
 }
 
+/**
+ * The Credential model represents authentication credentials stored for a user.
+ *
+ * Fields:
+ * - id: Unique identifier for the credential (cuid).
+ * - userId: The ID of the user to whom the credential belongs.
+ * - name: The name or label of the credential.
+ * - value: The encrypted value of the credential.
+ * - createdAt: Timestamp when the credential was created.
+ *
+ * Constraints:
+ * - Unique combination of userId and name.
+ */
 model Credential {
-  id String @id @default(cuid())
-  userId String
-  name String
-  value String
-
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  value     String
   createdAt DateTime @default(now())
 
   @@unique([userId, name])
 }
 
+/**
+ * The UserPurchase model logs purchases made by users.
+ *
+ * Fields:
+ * - id: Unique identifier for the purchase record (cuid).
+ * - userId: The ID of the user who made the purchase.
+ * - stripeId: The identifier for the transaction from Stripe.
+ * - description: A description of the purchase.
+ * - amount: The monetary amount of the purchase.
+ * - currency: The currency in which the purchase was made.
+ * - date: The timestamp when the purchase occurred (default now).
+ */
 model UserPurchase {
-  id String @id @default(cuid())
-  userId String
-  stripeId String
+  id          String   @id @default(cuid())
+  userId      String
+  stripeId    String
   description String
-  amount Int
-  currency String
-  date DateTime @default(now())
+  amount      Int
+  currency    String
+  date        DateTime @default(now())
 }

@@ -3,9 +3,15 @@ import { LucideIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import ReactCountUpWrapper from "@/components/ReactCountUpWrapper";
 
-interface Props {
-  title: string;
-  value: number;
+/**
+ * A reusable component to display a card with a title, value, and icon.
+ *
+ * @param props - The properties for the StatsCard component.
+ * @returns - A React component that renders a card with the given title, value, and icon.
+ */
+interface Props {  
+  title: string;  
+  value: number;  
   icon: LucideIcon;
 }
 export default function StatsCard(props: Props) {
@@ -26,3 +32,4 @@ export default function StatsCard(props: Props) {
     </Card>
   );
 }
+

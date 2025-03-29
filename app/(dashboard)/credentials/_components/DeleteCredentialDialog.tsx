@@ -19,19 +19,44 @@ import { XIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
+/**
+ * Props for DeleteCredentialDialog component.
+ *
+ * @typedef {Object} Props
+ * @property {string} name - The name of the credential to be deleted. This value is also used for confirmation.
+ */
 interface Props {
   name: string;
 }
 
+/**
+ * DeleteCredentialDialog Component.
+ *
+ * This component renders a confirmation dialog that requires the user to type in the name of the credential
+ * before proceeding with deletion. It uses the react-query mutation hook to perform the deletion action,
+ * and displays appropriate toast notifications for success or error states.
+ *
+ * @param {Props} props - The props for the component.
+ * @param {string} props.name - The name of the credential to be deleted.
+ * @returns {JSX.Element} A dialog component that handles credential deletion.
+ */
+
 export default function DeleteCredentialDialog({ name }: Props) {
+  // State to hold the confirmation text input by the user.
   const [confirmText, setConfirmText] = useState("");
+  // State to manage the visibility of the alert dialog.
   const [open, setOpen] = useState(false);
+
+  // Configure the mutation to delete a credential using the provided DeleteCredential function.
+  // On success, a success toast is displayed, and the dialog is closed.
+  // On error, an error toast is displayed.
   const deleteMutation = useMutation({
     mutationFn: DeleteCredential,
     onSuccess: () => {
       toast.success("Credential deleted successfully", {
         id: name
       });
+      // Reset the confirmation input and close the dialog after successful deletion.
       setConfirmText("");
       setOpen(false);
     },

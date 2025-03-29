@@ -12,6 +12,15 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 
+/**
+ * ModeToggle Component.
+ *
+ * Renders a theme toggle control using a dropdown menu.
+ * The button displays sun and moon icons that animate based on the current theme.
+ * When a menu item is clicked, the theme is set to light, dark, or system.
+ *
+ * @returns {JSX.Element} The rendered mode toggle component.
+ */
 export function ModeToggle() {
   const { setTheme } = useTheme();
 
@@ -19,7 +28,9 @@ export function ModeToggle() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="icon">
+          {/* Sun icon for light mode */}
           <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+          {/* Moon icon for dark mode */}
           <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
           <span className="sr-only">Toggle theme</span>
         </Button>

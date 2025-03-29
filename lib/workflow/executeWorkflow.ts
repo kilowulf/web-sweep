@@ -1,4 +1,3 @@
-import "server-only";
 import prisma from "../prisma";
 import { revalidatePath } from "next/cache";
 import {
@@ -17,7 +16,24 @@ import { Edge } from "@xyflow/react";
 import { LogCollector } from "@/types/log";
 import { createLogCollector } from "@/lib/log";
 
-// timestamp: 8:33:47
+/**
+ * ExecuteWorkflow
+ *
+ * Main function to execute a workflow. It performs the following operations:
+ * - Retrieves the execution instance from the database (including workflow and phases).
+ * - Sets up the execution environment.
+ * - Initializes the execution status and phases in the database.
+ * - Iterates through each phase and executes them sequentially using the corresponding executor.
+ * - Accumulates the total credits consumed and halts execution on failure.
+ * - Finalizes the execution status and updates the workflow record.
+ * - Cleans up the execution environment (e.g., closes the browser).
+ * - Revalidates the path for the workflow runs page.
+ *
+ * @param {string} executionId - The unique identifier for the workflow execution.
+ * @param {Date} [nextRunAt] - Optional date for scheduling the next run.
+ * @returns {Promise<void>} Resolves when execution and cleanup are complete.
+ * @throws {Error} Throws an error if the execution is not found.
+ */
 export async function ExecuteWorkflow(executionId: string, nextRunAt?: Date) {
   const execution = await prisma.workflowExecution.findUnique({
     where: { id: executionId },
@@ -30,23 +46,24 @@ export async function ExecuteWorkflow(executionId: string, nextRunAt?: Date) {
 
   const edges = JSON.parse(execution.definition).edges as Edge[];
 
-  // setup execution environment
+  // Setup execution environment
   const environment: Environment = { phases: {} };
 
-  // initialize workflow execution
+  // Initialize workflow execution state in the database
   await initializeWorkflowExecution(
     executionId,
     execution.workflowId,
     nextRunAt
   );
 
-  // initialize phases status
+  // Initialize all phases status to PENDING
   await initializePhasesStatus(execution);
 
   let creditsConsumed = 0;
   let executionFailed = false;
+
+  // Execute each phase sequentially
   for (const phase of execution.phases) {
-    //  execute phase
     const phaseExecution = await executeWorkflowPhase(
       phase,
       environment,
@@ -54,14 +71,14 @@ export async function ExecuteWorkflow(executionId: string, nextRunAt?: Date) {
       execution.userId
     );
     creditsConsumed += phaseExecution.creditsConsumed;
-    // failure of an execution will halt subsequent phases
+    // If any phase fails, halt further execution
     if (!phaseExecution.success) {
       executionFailed = true;
       break;
     }
   }
 
-  // finalize execution
+  // Finalize the workflow execution by updating statuses and credits
   await finalizeWorkflowExecution(
     executionId,
     execution.workflowId,
@@ -69,12 +86,25 @@ export async function ExecuteWorkflow(executionId: string, nextRunAt?: Date) {
     creditsConsumed
   );
 
-  // clean up environment
+  // Clean up the execution environment (e.g., close the browser)
   await cleanupEnvironment(environment);
 
+  // Revalidate the workflows/runs path to update cached pages
   revalidatePath("/workflows/runs");
 }
 
+/**
+ * initializeWorkflowExecution
+ *
+ * Sets the initial state for the workflow execution in the database.
+ * It updates the workflow execution record with the current start time and sets its status to RUNNING.
+ * It also updates the corresponding workflow record with last run details and optionally the next run time.
+ *
+ * @param {string} executionId - The execution id to update.
+ * @param {string} workflowId - The id of the workflow being executed.
+ * @param {Date} [nextRunAt] - Optional date for the next run.
+ * @returns {Promise<void>}
+ */
 async function initializeWorkflowExecution(
   executionId: string,
   workflowId: string,
@@ -100,6 +130,15 @@ async function initializeWorkflowExecution(
     }
   });
 }
+
+/**
+ * initializePhasesStatus
+ *
+ * Updates the status of all phases related to the execution to PENDING.
+ *
+ * @param {any} execution - The execution object containing phase information.
+ * @returns {Promise<void>}
+ */
 async function initializePhasesStatus(execution: any) {
   await prisma.executionPhase.updateMany({
     where: {
@@ -113,6 +152,19 @@ async function initializePhasesStatus(execution: any) {
   });
 }
 
+/**
+ * finalizeWorkflowExecution
+ *
+ * Finalizes the workflow execution by setting the final status (COMPLETED or FAILED),
+ * recording the completion time, and updating the consumed credits.
+ * It also updates the workflow record with the final run status.
+ *
+ * @param {string} executionId - The execution id.
+ * @param {string} workflowId - The workflow id.
+ * @param {boolean} executionFailed - Indicates whether the execution failed.
+ * @param {number} creditsConsumed - The total credits consumed during execution.
+ * @returns {Promise<void>}
+ */
 async function finalizeWorkflowExecution(
   executionId: string,
   workflowId: string,
@@ -143,13 +195,23 @@ async function finalizeWorkflowExecution(
       }
     })
     .catch((err) => {
-      /**Other workflows have been triggered while execution
-       * was running so we ignore. use catch error so error doesn't
-       * propagate.
-       */
+      // If the update fails (e.g., due to concurrent execution), log error but do not propagate.
     });
 }
 
+/**
+ * executeWorkflowPhase
+ *
+ * Executes an individual phase of the workflow.
+ * It sets up the environment for the phase, updates its status, and decrements user credits.
+ * The phase is then executed using its corresponding executor function, and outputs are finalized.
+ *
+ * @param {ExecutionPhase} phase - The phase record from the database.
+ * @param {Environment} environment - The shared execution environment.
+ * @param {Edge[]} edges - Array of edges representing connections between nodes.
+ * @param {string} userId - The user id for credit deduction.
+ * @returns {Promise<{ success: boolean; creditsConsumed: number }>} The result of the phase execution and credits consumed.
+ */
 async function executeWorkflowPhase(
   phase: ExecutionPhase,
   environment: Environment,
@@ -159,10 +221,11 @@ async function executeWorkflowPhase(
   const logCollector = createLogCollector();
   const startedAt = new Date();
   const node = JSON.parse(phase.node) as AppNode;
-  // initialize environment
+
+  // Setup the phase-specific environment by populating inputs from connected outputs.
   setupEnvironmentForPhase(node, environment, edges);
 
-  // Update phase status
+  // Update the phase record to indicate it is running.
   await prisma.executionPhase.update({
     where: { id: phase.id },
     data: {
@@ -174,15 +237,15 @@ async function executeWorkflowPhase(
 
   const creditsRequired = TaskRegistry[node.data.type].credits;
 
-  // decrement from user balance
+  // Decrement user credits for this phase.
   let success = await decrementCredits(userId, creditsRequired, logCollector);
   const creditsConsumed = success ? creditsRequired : 0;
   if (success) {
-    // execute phase if sufficient credits exist
+    // Execute the phase if sufficient credits exist.
     success = await executePhase(phase, node, environment, logCollector);
   }
 
-  // Execute phase simulation
+  // Finalize the phase outputs and status.
   const outputs = environment.phases[node.id].outputs;
   await finalizePhase(
     phase.id,
@@ -194,6 +257,19 @@ async function executeWorkflowPhase(
   return { success, creditsConsumed };
 }
 
+/**
+ * finalizePhase
+ *
+ * Finalizes the execution of a phase by updating its status, recording the completion time,
+ * storing outputs, and logging execution details.
+ *
+ * @param {string} phaseId - The id of the phase to finalize.
+ * @param {boolean} success - Indicates whether the phase executed successfully.
+ * @param {any} outputs - The outputs generated by the phase.
+ * @param {LogCollector} logCollector - A log collector instance containing logs for this phase.
+ * @param {number} creditsConsumed - The credits consumed during phase execution.
+ * @returns {Promise<void>}
+ */
 async function finalizePhase(
   phaseId: string,
   success: boolean,
@@ -227,6 +303,18 @@ async function finalizePhase(
   });
 }
 
+/**
+ * executePhase
+ *
+ * Executes the individual phase by invoking the appropriate executor function from the ExecutorRegistry.
+ * It creates an execution environment tailored for the phase and returns the success status.
+ *
+ * @param {ExecutionPhase} phase - The phase record.
+ * @param {AppNode} node - The node associated with the phase.
+ * @param {Environment} environment - The overall workflow execution environment.
+ * @param {LogCollector} logCollector - A log collector for gathering logs during phase execution.
+ * @returns {Promise<boolean>} True if the phase executes successfully, otherwise false.
+ */
 async function executePhase(
   phase: ExecutionPhase,
   node: AppNode,
@@ -245,6 +333,17 @@ async function executePhase(
   return await runFn(executionEnvironment);
 }
 
+/**
+ * setupEnvironmentForPhase
+ *
+ * Prepares the execution environment for a specific phase by initializing its inputs.
+ * It sets up an empty inputs/outputs object for the node and populates inputs either from
+ * the node's own data or from connected outputs via edges.
+ *
+ * @param {AppNode} node - The node representing the phase.
+ * @param {Environment} environment - The overall workflow execution environment.
+ * @param {Edge[]} edges - The list of edges connecting nodes.
+ */
 function setupEnvironmentForPhase(
   node: AppNode,
   environment: Environment,
@@ -257,13 +356,14 @@ function setupEnvironmentForPhase(
 
   const inputs = TaskRegistry[node.data.type].inputs;
   for (const input of inputs) {
+    // Skip browser instance inputs.
     if (input.type === TaskParamType.BROWSER_INSTANCE) continue;
     const inputValue = node.data.inputs[input.name];
     if (inputValue) {
       environment.phases[node.id].inputs[input.name] = inputValue;
       continue;
     }
-    // Get input value from outputs in Environment
+    // Retrieve connected output from upstream node if available.
     const connectedEdge = edges.find(
       (edge) => edge.target === node.id && edge.targetHandle === input.name
     );
@@ -281,6 +381,17 @@ function setupEnvironmentForPhase(
   }
 }
 
+/**
+ * createExecutionEnvironment
+ *
+ * Creates a phase-specific execution environment for a node.
+ * This environment provides methods to get inputs, set outputs, and interact with the browser and page.
+ *
+ * @param {AppNode} node - The node for which to create the execution environment.
+ * @param {Environment} environment - The overall workflow execution environment.
+ * @param {LogCollector} logCollector - A log collector for logging messages during execution.
+ * @returns {ExecutionEnvironment<any>} The tailored execution environment for the phase.
+ */
 function createExecutionEnvironment(
   node: AppNode,
   environment: Environment,
@@ -303,6 +414,14 @@ function createExecutionEnvironment(
   };
 }
 
+/**
+ * cleanupEnvironment
+ *
+ * Cleans up the execution environment by closing the browser instance if it exists.
+ *
+ * @param {Environment} environment - The execution environment to clean up.
+ * @returns {Promise<void>}
+ */
 async function cleanupEnvironment(environment: Environment) {
   if (environment.browser) {
     await environment.browser
@@ -311,6 +430,17 @@ async function cleanupEnvironment(environment: Environment) {
   }
 }
 
+/**
+ * decrementCredits
+ *
+ * Attempts to decrement the user's credits by a specified amount.
+ * If the user does not have sufficient credits, logs an error and returns false.
+ *
+ * @param {string} userId - The id of the user whose credits are to be decremented.
+ * @param {number} amount - The amount of credits to decrement.
+ * @param {LogCollector} logCollector - A log collector to log errors.
+ * @returns {Promise<boolean>} True if the credits were successfully decremented, otherwise false.
+ */
 async function decrementCredits(
   userId: string,
   amount: number,

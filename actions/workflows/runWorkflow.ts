@@ -14,6 +14,25 @@ import {
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
+/**
+ * This function is responsible for running a workflow based on the provided form data.
+ * It first authenticates the user, validates the input parameters, retrieves the workflow,
+ * and generates or retrieves the execution plan based on the workflow status.
+ * Then, it creates a new workflow execution record in the database, populates the execution phases,
+ * and starts the execution process.
+ *
+ * @param form - An object containing the workflowId and optional flowDefinition.
+ * @param form.workflowId - The unique identifier of the workflow to be executed.
+ * @param form.flowDefinition - The JSON string representing the workflow definition.
+ *
+ * @throws Will throw an error if the user is not authenticated, if the workflowId is missing,
+ * if the workflow is not found, if no execution plan is found in a published workflow,
+ * if the flow definition is not provided for a non-published workflow,
+ * if the flow definition is not valid, if no execution plan is generated,
+ * or if the workflow execution record cannot be created.
+ *
+ * @returns {Promise<void>} - The function does not return any value.
+ */
 export async function RunWorkflow(form: {
   workflowId: string;
   flowDefinition?: string;
@@ -99,3 +118,4 @@ export async function RunWorkflow(form: {
   ExecuteWorkflow(execution.id);
   redirect(`/workflow/runs/${workflowId}/${execution.id}`);
 }
+

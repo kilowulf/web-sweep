@@ -18,9 +18,20 @@ import { CoinsIcon } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useRouter } from "next/navigation";
 
-// timestamp: 9:02:21
-
 type InitialDataType = Awaited<ReturnType<typeof GetWorkflowExecutions>>;
+/**
+ * ExecutionsTable Component.
+ *
+ * This component renders a table that displays a list of workflow executions.
+ * It uses react-query to fetch and refresh the executions data every 5 seconds.
+ * Each row displays the execution's ID, status (with an indicator), consumed credits,
+ * and the time since the execution started. Clicking on a row navigates to the execution details page.
+ *
+ * @param {Object} props - Component properties.
+ * @param {string} props.workflowId - The unique identifier for the workflow.
+ * @param {InitialDataType} props.initialData - The initial data for workflow executions.
+ * @returns {JSX.Element} The rendered executions table.
+ */
 
 export default function ExecutionsTable({
   workflowId,
@@ -30,6 +41,7 @@ export default function ExecutionsTable({
   initialData: InitialDataType;
 }) {
   const router = useRouter();
+  // Fetch workflow executions using react-query, with data refresh every 5 seconds.
   const query = useQuery({
     queryKey: ["executions", workflowId],
     initialData,

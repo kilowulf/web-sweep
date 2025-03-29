@@ -8,6 +8,14 @@ import { auth } from "@clerk/nextjs/server";
 import { eachDayOfInterval, format } from "date-fns";
 
 type Stats = Record<string, { success: number; failed: number }>;
+/**
+ * Retrieves workflow execution statistics for a given period.
+ *
+ * @param period - The period for which to retrieve statistics.
+ * @returns An array of objects containing the date and success/failed counts for each day within the specified period.
+ *
+ * @throws Will throw an error if the user is not authenticated.
+ */
 export async function GetWorkflowExecutionStats(period: Period) {
   const { userId } = auth();
   if (!userId) {
@@ -56,3 +64,4 @@ export async function GetWorkflowExecutionStats(period: Period) {
 
   return result;
 }
+

@@ -22,7 +22,15 @@ import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 
 type ChartData = Awaited<ReturnType<typeof GetWorkflowExecutionStats>>;
 
-// timestamp: 13:52:18
+
+/**
+ * A component that displays a chart showing the daily number of successful and failed workflow executions.
+ *
+ * @param props - The component's props.
+ * @param props.data - The chart data, which is an array of objects with 'date', 'success', and 'failed' properties.
+ *
+ * @returns - A React component that renders the chart.
+ */
 export default function ExecutionStatusChart({ data }: { data: ChartData }) {
   const chartConfig = {
     success: {
@@ -96,3 +104,4 @@ export default function ExecutionStatusChart({ data }: { data: ChartData }) {
     </Card>
   );
 }
+

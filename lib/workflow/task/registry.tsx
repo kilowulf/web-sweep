@@ -13,10 +13,27 @@ import { AddPropertyToJsonTask } from "@/lib/workflow/task/AddPropertyToJson";
 import { NavigateUrlTask } from "@/lib/workflow/task/NavigateUrlTask";
 import { ScrollToElementTask } from "@/lib/workflow/task/ScrollToElement";
 
+/**
+ * Registry is a mapping from each TaskType to its corresponding WorkflowTask configuration.
+ *
+ * Each key in the registry corresponds to a task type, and its value contains the configuration
+ * for that task including its label, icon, inputs, outputs, and other metadata.
+ *
+ * @typedef {Object} Registry
+ * @property {WorkflowTask & { type: K }} [K in TaskType] - The workflow task configuration for the task type.
+ */
 type Registry = {
   [K in TaskType]: WorkflowTask & { type: K };
 };
 
+/**
+ * TaskRegistry
+ *
+ * A centralized registry that maps each workflow task type (TaskType) to its corresponding task configuration.
+ * This registry is used throughout the application to dynamically access task definitions.
+ *
+ * @type {Registry}
+ */
 export const TaskRegistry: Registry = {
   LAUNCH_BROWSER: LaunchBrowserTask,
   PAGE_TO_HTML: PageToHtmlTask,

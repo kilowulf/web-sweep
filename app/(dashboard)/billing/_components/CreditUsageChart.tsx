@@ -52,6 +52,16 @@ import { GetCreditUsageInPeriod } from "@/actions/analytics/getCreditUsageInPeri
 
 type ChartData = Awaited<ReturnType<typeof GetCreditUsageInPeriod>>;
 
+/**
+ * Renders a credit usage chart component using Recharts library.
+ *
+ * @param props - The props for the component.
+ * @param props.data - The chart data, an array of objects with 'date', 'success', and 'failed' properties.
+ * @param props.title - The title of the chart.
+ * @param props.description - The description of the chart.
+ *
+ * @returns - A React component that displays a credit usage chart.
+ */
 export default function CreditUsageChart({
   data,
   title,
@@ -131,3 +141,4 @@ export default function CreditUsageChart({
     </Card>
   );
 }
+

@@ -1,3 +1,8 @@
+/**
+ * TaskType enum.
+ *
+ * Enumerates the possible types of tasks that can be part of a workflow.
+ */
 export enum TaskType {
   LAUNCH_BROWSER = "LAUNCH_BROWSER",
   PAGE_TO_HTML = "PAGE_TO_HTML",
@@ -13,6 +18,11 @@ export enum TaskType {
   SCROLL_TO_ELEMENT = "SCROLL_TO_ELEMENT"
 }
 
+/**
+ * TaskParamType enum.
+ *
+ * Enumerates the types of parameters that can be used as inputs or outputs in a task.
+ */
 export enum TaskParamType {
   STRING = "STRING",
   BROWSER_INSTANCE = "BROWSER_INSTANCE",
@@ -20,6 +30,19 @@ export enum TaskParamType {
   CREDENTIAL = "CREDENTIAL"
 }
 
+/**
+ * TaskParam interface.
+ *
+ * Describes a parameter for a task including its name, type, and optional properties.
+ *
+ * @property {string} name - The name of the parameter.
+ * @property {TaskParamType} type - The type of the parameter.
+ * @property {string} [helperText] - Optional helper text providing additional context for the parameter.
+ * @property {boolean} [required] - Indicates whether the parameter is required.
+ * @property {boolean} [hideHandle] - If true, the parameter's handle should be hidden in the UI.
+ * @property {string} [value] - Optional default or initial value of the parameter.
+ * @property {any} [key: string] - Allows for additional properties.
+ */
 export interface TaskParam {
   name: string;
   type: TaskParamType;
