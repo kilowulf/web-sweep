@@ -8,7 +8,7 @@ generator client {
 
 // Data source configuration using SQLite; DATABASE_URL is read from environment variables.
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
