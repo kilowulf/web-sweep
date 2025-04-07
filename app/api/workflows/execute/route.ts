@@ -60,6 +60,13 @@ export async function GET(request: Request): Promise<Response> {
   // Extract the workflowId from the URL's query parameters.
   const { searchParams } = new URL(request.url);
   const workflowId = searchParams.get("workflowId") as string;
+  const executionId = searchParams.get("executionId") as string;
+
+  if (executionId.length > 0) {
+    await ExecuteWorkflow(executionId);
+    return Response.json({ success: true });
+  }
+
   if (!workflowId) {
     return Response.json({ error: "Bad Request" }, { status: 400 });
   }

@@ -1,5 +1,7 @@
 import { ExecutionEnvironment } from "@/types/executor";
 import puppeteer from "puppeteer";
+import chromium from "@sparticuz/chromium";
+import puppeteerCore from "puppeteer-core";
 import { LaunchBrowserTask } from "@/lib/workflow/task/LaunchBrowser";
 
 /**
@@ -18,6 +20,8 @@ import { LaunchBrowserTask } from "@/lib/workflow/task/LaunchBrowser";
  * @param {ExecutionEnvironment<typeof LaunchBrowserTask>} environment - The execution environment containing inputs, logging, and methods to set the browser and page.
  * @returns {Promise<boolean>} A promise that resolves to true if the browser is launched and the page is opened successfully, otherwise false.
  */
+
+chromium.setGraphicsMode = false;
 export async function LaunchBrowserExecutor(
   environment: ExecutionEnvironment<typeof LaunchBrowserTask>
 ): Promise<boolean> {
@@ -26,8 +30,12 @@ export async function LaunchBrowserExecutor(
     const websiteUrl = environment.getInput("Website Url");
 
     // Launch a new headless Puppeteer browser instance.
-    const browser = await puppeteer.launch({
-      headless: true
+    const browser = await puppeteerCore.launch({
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath(),
+      headless: true,
+      ignoreDefaultArgs: ["--disable-extensions"]
     });
 
     // Uncomment the following code for Brightdata proxy implementation:
@@ -37,7 +45,7 @@ export async function LaunchBrowserExecutor(
 
     environment.log.info("Browser started successfully");
     // Save the browser instance in the execution environment.
-    environment.setBrowser(browser);
+    environment.setBrowser(browser as any);
 
     // Open a new page and set the viewport.
     const page = await browser.newPage();
@@ -46,7 +54,7 @@ export async function LaunchBrowserExecutor(
     // Navigate to the specified website URL.
     await page.goto(websiteUrl);
     // Save the page instance in the execution environment.
-    environment.setPage(page);
+    environment.setPage(page as any);
     environment.log.info(`Opened page at: ${websiteUrl}`);
   } catch (error: any) {
     // Log any error that occurs during execution.
